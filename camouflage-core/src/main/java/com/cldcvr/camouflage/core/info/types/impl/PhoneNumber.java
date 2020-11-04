@@ -20,7 +20,7 @@ public final class PhoneNumber extends AbstractInfoType {
     }
 
     public String regex() {
-        return "";
+        return ".";
     }
 
     public String algorithm(String input) {

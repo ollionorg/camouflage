@@ -1,4 +1,4 @@
-package com.cldcvr.types;
+package com.cldcvr.camouflage.beam;
 
 import com.cldcvr.camouflage.core.info.types.AbstractInfoType;
 

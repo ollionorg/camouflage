@@ -1,8 +1,9 @@
 package com.cldcvr.camouflage.core.mask.types.impl;
 
 import com.cldcvr.camouflage.core.mask.types.AbstractMaskType;
+import java.io.Serializable;
 
-public class RedactConfig extends AbstractMaskType {
+public class RedactConfig extends AbstractMaskType implements Serializable {
 
     private final String replace;
     public RedactConfig(String replace)
@@ -14,7 +15,7 @@ public class RedactConfig extends AbstractMaskType {
     }
 
     public String applyMaskStrategy(String input, String regex) {
-        return input.replace(regex,replace);
+        return input.replaceAll(regex,replace);
     }
 
 

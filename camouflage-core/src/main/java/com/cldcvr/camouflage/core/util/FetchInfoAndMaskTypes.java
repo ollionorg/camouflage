@@ -1,5 +1,6 @@
 package com.cldcvr.camouflage.core.util;
 
+import com.cldcvr.camouflage.core.exception.CamouflageApiException;
 import com.cldcvr.camouflage.core.info.types.AbstractInfoType;
 import com.cldcvr.camouflage.core.info.types.impl.Email;
 import com.cldcvr.camouflage.core.info.types.impl.PhoneNumber;
@@ -21,7 +22,7 @@ public class FetchInfoAndMaskTypes {
             case "PHONE_NUMBER" : return new PhoneNumber(getMaskTypes(metadata));
             case "EMAIL" : return new Email(getMaskTypes(metadata));
             default:
-                throw new Exception();
+                throw new CamouflageApiException(String.format("INFO_TYPE %s not supported", metadata.getInfoType()));
         }
 
     }
@@ -34,7 +35,7 @@ public class FetchInfoAndMaskTypes {
             case "HASH_CONFIG" : return new HashConfig(metadata.getReplace(),metadata.getSalt());
             case "CHARACTER_MASK_CONFIG" : return new CharacterMaskConfig(metadata.getReplace().charAt(0));
             default:
-                throw new Exception();
+                throw new CamouflageApiException(String.format("Mask Type %s not supported", metadata.getMaskType()));
         }
     }
 

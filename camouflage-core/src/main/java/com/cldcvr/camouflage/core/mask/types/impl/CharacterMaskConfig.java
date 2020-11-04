@@ -1,11 +1,12 @@
 package com.cldcvr.camouflage.core.mask.types.impl;
 
 import com.cldcvr.camouflage.core.mask.types.AbstractMaskType;
+import java.io.Serializable;
 
 /**
  * Replace alphabets in input string with replacement character
  */
-public class CharacterMaskConfig extends AbstractMaskType {
+public class CharacterMaskConfig extends AbstractMaskType implements Serializable {
 
     private final Character ch;
     public CharacterMaskConfig(Character ch)

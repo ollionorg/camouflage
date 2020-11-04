@@ -2,7 +2,9 @@ package com.cldcvr.camouflage.core.mask.types.impl;
 
 import com.cldcvr.camouflage.core.mask.types.AbstractMaskType;
 
-public final class HashConfig extends AbstractMaskType {
+import java.io.Serializable;
+
+public final class HashConfig extends AbstractMaskType implements Serializable {
 
     private final String replace;
     private final String salt;
