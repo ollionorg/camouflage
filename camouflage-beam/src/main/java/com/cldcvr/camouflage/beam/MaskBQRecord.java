@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class MaskBQRecord extends DoFn<TableRow, TableRow> {
 
     private final CamouflageSerDe camouflageSerDe;
-    private final Map<String, Set<AbstractInfoType>> traits = new HashMap<>();
+    private final Map<String, Set<AbstractInfoType>> columnInfoTypesMap = new HashMap<>();
     final transient com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
 
     public MaskBQRecord(String colMaskInfo) throws IOException {
@@ -27,7 +27,7 @@ public class MaskBQRecord extends DoFn<TableRow, TableRow> {
 
         camouflageSerDe.getDlpMetadata().stream().forEach(r -> {
             try {
-                traits.put(r.getColumn(), MapToInfoType.toInfoTypeMapping(r.getColumn(), r.getDlpTypes()));
+                columnInfoTypesMap.put(r.getColumn(), MapToInfoType.toInfoTypeMapping(r.getColumn(), r.getDlpTypes()));
             } catch (CamouflageApiException e) {
                 throw new RuntimeException(e);
             }
@@ -40,7 +40,7 @@ public class MaskBQRecord extends DoFn<TableRow, TableRow> {
             TableRow row = c.element();
 
             row.keySet().stream().forEach(x->{
-                Set<AbstractInfoType> infotypes = this.traits.get(x);
+                Set<AbstractInfoType> infotypes = this.columnInfoTypesMap.get(x);
                 if (infotypes != null && infotypes.size() > 0 ) {
                     Iterator<AbstractInfoType> it = infotypes.iterator();
                     String value = (String) row.get(x);
