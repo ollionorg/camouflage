@@ -22,4 +22,12 @@ public class CamouflageSerDe implements Serializable {
                 "dlpMetadata=" + dlpMetadata +
                 '}';
     }
+
+    /**
+     * {
+     *     DLPMetadata:{
+     *
+     *     }
+     * }
+     */
 }

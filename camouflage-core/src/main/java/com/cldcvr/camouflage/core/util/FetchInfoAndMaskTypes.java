@@ -36,7 +36,7 @@ public class FetchInfoAndMaskTypes {
             case "HASH_CONFIG" : return new HashConfig(metadata.getReplace(),metadata.getSalt());
             case "CHARACTER_MASK_CONFIG" : return new CharacterMaskConfig(metadata.getReplace().charAt(0));
             default:
-                throw new CamouflageApiException(String.format("Mask Type %s not supported", metadata.getMaskType()));
+                throw new CamouflageApiException(String.format("Mask Type `%s` not supported", metadata.getMaskType()));
         }
     }
 

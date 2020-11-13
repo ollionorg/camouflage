@@ -8,23 +8,20 @@ import java.util.*;
 
 public class MapToInfoType implements Serializable {
 
-    public static Set<AbstractInfoType> toInfoTypeMapping(String column,List<TypeMetadata> metadata) throws CamouflageApiException {
-//        Map<String,Set<AbstractInfoType>> returnMap = new HashMap<>();
+    public static Set<AbstractInfoType> toInfoTypeMapping(List<TypeMetadata> metadata) throws CamouflageApiException {
         Set<AbstractInfoType> types = new LinkedHashSet<AbstractInfoType>();
         try {
             for (int i=0;i<metadata.size();i++)
             {
                 types.add(FetchInfoAndMaskTypes.getInfoType(metadata.get(i)));
-//                returnMap.put(column,types);
             }
         }
         catch (Exception e )
         {
-            throw new CamouflageApiException(String.format("Error: [%s] \n Cause: [%s]",
+            throw new CamouflageApiException(String.format("Error: [%s] \n Cause: [%s] \n Message: [%s]",
                     String.format("Failed to parse TypeMetadata of `[%s]` to info types", metadata),
-                    e.getCause()));
+                    e.getCause(),e.getMessage()));
         }
-//        return new CamouflageTraits(column,types);
         return types;
     }
 }
