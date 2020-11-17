@@ -41,10 +41,9 @@
                             </filters>
                             <transformers>
                                 <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.cldcvr.dataflow.realtime.SqlCDC</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
@@ -52,7 +51,24 @@
                 </executions>
             </plugin>
         </plugins>
+<!--        <extensions>-->
+<!--            <extension>-->
+<!--                <groupId>com.gkatzioura.maven.cloud</groupId>-->
+<!--                <artifactId>google-storage-wagon</artifactId>-->
+<!--                <version>1.6</version>-->
+<!--            </extension>-->
+<!--        </extensions>-->
     </build>
+<!--    <distributionManagement>-->
+<!--        <snapshotRepository>-->
+<!--            <id>camouflage-beam-snapshot</id>-->
+<!--            <url>gs://us-central1-airflow-datapip-86f2e1e9-bucket/jars/masking/beam/snapshot</url>-->
+<!--        </snapshotRepository>-->
+<!--        <repository>-->
+<!--            <id>camouflage-beam-release</id>-->
+<!--            <url>gs://us-central1-airflow-datapip-86f2e1e9-bucket/jars/masking/beam/release</url>-->
+<!--        </repository>-->
+<!--    </distributionManagement>-->
 
     <artifactId>camouflage-beam</artifactId>
     <dependencies>
@@ -60,15 +76,12 @@
             <groupId>org.example</groupId>
             <artifactId>camouflage-core</artifactId>
             <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.beam</groupId>
             <artifactId>beam-runners-google-cloud-dataflow-java</artifactId>
             <version>2.20.0</version>
-            <!--<scope>runtime</scope>-->
+            <scope>provided</scope>
         </dependency>
     </dependencies>
-
-
 </project>

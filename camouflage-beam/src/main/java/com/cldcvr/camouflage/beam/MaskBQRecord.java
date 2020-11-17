@@ -48,7 +48,7 @@ public class MaskBQRecord extends DoFn<TableRow, TableRow> {
     public void processElement(ProcessContext c) {
         TableRow row = c.element();
         try {
-            String topic = row.get("_connector_name")+"."+row.get("_database_table");
+            String topic = row.get("_connector_name")+"_"+row.get("_database_table");
             row.keySet().stream().forEach(x->{
                 Set<AbstractInfoType> infotypes = this.topicAndColumnInfoTypes.get(topic).get(x);
                 if (infotypes != null && infotypes.size() > 0 ) {
