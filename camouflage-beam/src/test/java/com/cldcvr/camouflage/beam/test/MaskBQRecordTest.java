@@ -32,31 +32,63 @@ public class MaskBQRecordTest {
     public void TestAllowRecord() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         String json = "{\n" +
-                "\t\"DLPMetadata\":[{\n" +
-                "\t\t\"column\":\"card_number\",\n" +
-                "\t\t\"dlpTypes\":[{\n" +
-                "\t\t\t\"info_type\":\"PHONE_NUMBER\",\n" +
-                "          \"mask_type\":\"REDACT_CONFIG\",\n" +
-                "           \"replace\":\"*\"\n" +
-                "\t\t}\n" +
-                "       ]\n" +
-                "\t},\n" +
-                "\t{\n" +
-                "\t\t\"column\":\"card_pin\",\n" +
-                "\t\t\"dlpTypes\":[{\n" +
-                "\t\t\t\"info_type\":\"PHONE_NUMBER\",\n" +
-                "          \"mask_type\":\"HASH\",\n" +
-                "           \"salt\":\"somesaltgoeshere\"\n" +
-                "\t\t}\n" +
-                "       ]\n" +
-                "\t}\n" +
-                "]\n" +
+                "   \"DLPMetaData\":[\n" +
+                "      {\n" +
+                "         \"topic\":\"connect1_db_t1\",\n" +
+                "         \"columns\":[\n" +
+                "            {\n" +
+                "               \"column\":\"card_number\",\n" +
+                "               \"dlpTypes\":[\n" +
+                "                  {\n" +
+                "                     \"info_type\":\"PHONE_NUMBER\",\n" +
+                "                     \"mask_type\":\"REDACT_CONFIG\",\n" +
+                "                     \"replace\":\"*\"\n" +
+                "                  }\n" +
+                "               ]\n" +
+                "            },\n" +
+                "            {\n" +
+                "               \"column\":\"card_pin\",\n" +
+                "               \"dlpTypes\":[\n" +
+                "                  {\n" +
+                "                     \"info_type\":\"PHONE_NUMBER\",\n" +
+                "                     \"mask_type\":\"HASH_CONFIG\",\n" +
+                "                     \"salt\":\"somesaltgoeshere\"\n" +
+                "                  }\n" +
+                "               ]\n" +
+                "            }\n" +
+                "         ]\n" +
+                "      },{\n" +
+                "\"topic\":\"connect1.db_t2\",\n" +
+                "         \"columns\":[\n" +
+                "            {\n" +
+                "               \"column\":\"card_number\",\n" +
+                "               \"dlpTypes\":[\n" +
+                "                  {\n" +
+                "                     \"info_type\":\"PHONE_NUMBER\",\n" +
+                "                     \"mask_type\":\"REDACT_CONFIG\",\n" +
+                "                     \"replace\":\"*\"\n" +
+                "                  }\n" +
+                "               ]\n" +
+                "            },\n" +
+                "            {\n" +
+                "               \"column\":\"card_pin\",\n" +
+                "               \"dlpTypes\":[\n" +
+                "                  {\n" +
+                "                     \"info_type\":\"PHONE_NUMBER\",\n" +
+                "                     \"mask_type\":\"HASH_CONFIG\",\n" +
+                "                     \"salt\":\"somesaltgoeshere\"\n" +
+                "                  }\n" +
+                "               ]\n" +
+                "            }\n" +
+                "         ]\n" +
+                "      }\n" +
+                "   ]\n" +
                 "}";
 
-        String json1 = "{\"DLPMetadata\":[{\"column\":\"card_number\",\"dlpTypes\":[{\"info_type\":\"PHONE_NUMBER\",\"mask_type\":\"REDACT_CONFIG\",\"replace\":\"*\"}]},{\"column\":\"card_pin\",\"dlpTypes\":[{\"info_type\":\"PHONE_NUMBER\",\"mask_type\":\"HASH_CONFIG\",\"salt\":\"somesaltgoeshere\"}]}]}";
-        System.out.println(json1);
-        CamouflageSerDe camouflageSerDe = mapper.readValue(json1, CamouflageSerDe.class);
-        System.out.println("JSON " + camouflageSerDe);
+//        String json1 = "{\"DLPMetadata\":[{\"column\":\"card_number\",\"dlpTypes\":[{\"info_type\":\"PHONE_NUMBER\",\"mask_type\":\"REDACT_CONFIG\",\"replace\":\"*\"}]},{\"column\":\"card_pin\",\"dlpTypes\":[{\"info_type\":\"PHONE_NUMBER\",\"mask_type\":\"HASH_CONFIG\",\"salt\":\"somesaltgoeshere\"}]}]}";
+        System.out.println(json);
+//        CamouflageSerDe camouflageSerDe = mapper.readValue(json, CamouflageSerDe.class);
+//        System.out.println("JSON " + camouflageSerDe);
 
 
         TableRow tblRow = new TableRow();
@@ -64,9 +96,11 @@ public class MaskBQRecordTest {
         tblRow.set("user_id", "90290100");
         tblRow.set("card_number", "4231944811234565");
         tblRow.set("card_pin", "1221");
+        tblRow.set("_connector_name", "connect1");
+        tblRow.set("_database_table","db_t1");
 
 
-        DoFnTester<TableRow, TableRow> fnTester = DoFnTester.of(new MaskBQRecord(json1));
+        DoFnTester<TableRow, TableRow> fnTester = DoFnTester.of(new MaskBQRecord(json));
         fnTester.processElement(tblRow);
 //        fnTester.startBundle();
 //        fnTester.processWindowedElement(tblRow, instant, boundedWindow);
@@ -79,6 +113,40 @@ public class MaskBQRecordTest {
 //        System.out.println(emp);
 
     }
+
+    @Test
+    public void TestAllowRecord2() throws Exception {
+        final ObjectMapper mapper = new ObjectMapper();
+        String json = "{\"DLPMetaData\": [{\"topic\": \"connect1_db_t1\",\"columns\": [{\"column\": \"SSN\",\"dlpTypes\": [{\"info_type\": \"US_SOCIAL_SECURITY_NUMBER\",\"mask_type\": \"REDACT_CONFIG\",\"replace\": \"*\"}]}]}]}";
+
+//        String json1 = "{\"DLPMetadata\":[{\"column\":\"card_number\",\"dlpTypes\":[{\"info_type\":\"PHONE_NUMBER\",\"mask_type\":\"REDACT_CONFIG\",\"replace\":\"*\"}]},{\"column\":\"card_pin\",\"dlpTypes\":[{\"info_type\":\"PHONE_NUMBER\",\"mask_type\":\"HASH_CONFIG\",\"salt\":\"somesaltgoeshere\"}]}]}";
+        System.out.println(json);
+//        CamouflageSerDe camouflageSerDe = mapper.readValue(json, CamouflageSerDe.class);
+//        System.out.println("JSON " + camouflageSerDe);
+
+
+        TableRow tblRow = new TableRow();
+        tblRow.set("id", "151424995");
+        tblRow.set("SSN", "552-09-6781");
+        tblRow.set("card_number", "4231944811234565");
+        tblRow.set("card_pin", "1221");
+        tblRow.set("_connector_name", "connect1");
+        tblRow.set("_database_table","db_t1");
+
+        DoFnTester<TableRow, TableRow> fnTester = DoFnTester.of(new MaskBQRecord(json));
+        fnTester.processElement(tblRow);
+//        fnTester.startBundle();
+//        fnTester.processWindowedElement(tblRow, instant, boundedWindow);
+//        fnTester.finishBundle();
+
+        TableRow maskedRecord = fnTester.takeOutputElements().get(0);
+        System.out.println(maskedRecord.toString());
+        assertEquals(maskedRecord.get("SSN"),"***********");
+//        Emp emp = mapper.readValue("{\"emp_name\":\"Taher\",\"emp_id\":\"1\"}",Emp.class);
+//        System.out.println(emp);
+
+    }
+
 
     static class Emp {
         private final String name;
