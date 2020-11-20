@@ -14,16 +14,18 @@ final class CamouflageBaseRelation extends BaseRelation implements Serializable,
     private final SQLContext context;
     private final StructType schema;
     private final Dataset<Row> dataset;
-    public CamouflageBaseRelation(Dataset<Row> dataset, SQLContext context, StructType schema)
-    {
-        this.dataset=dataset;
-        this.context=context;
-        this.schema=schema;
+
+    public CamouflageBaseRelation(Dataset<Row> dataset, SQLContext context) {
+        this.dataset = dataset;
+        this.context = context;
+        this.schema = dataset.schema();
     }
+
     @Override
     public SQLContext sqlContext() {
         return this.context;
     }
+
     @Override
     public StructType schema() {
         return this.schema;

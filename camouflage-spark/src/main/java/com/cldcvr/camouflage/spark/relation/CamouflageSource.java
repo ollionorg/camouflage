@@ -16,6 +16,8 @@ import org.apache.spark.sql.sources.v2.DataSourceV2;
 import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import scala.Serializable;
 import scala.collection.JavaConversions;
 import scala.collection.immutable.Map;
@@ -33,6 +35,7 @@ public class CamouflageSource implements DataSourceRegister, CreatableRelationPr
     public final static String FORMAT = "FORMAT";
     public final static String PRIMARY_KEYS_TO_IGNORE_DLP_ON = "PRIMARY_KEYS_TO_IGNORE_DLP_ON";
     public final static String PARTITION_BY = "PARTITION_BY";
+    private static final Logger LOG = LoggerFactory.getLogger(CamouflageSource.class);
 
 
     @Override
@@ -42,10 +45,10 @@ public class CamouflageSource implements DataSourceRegister, CreatableRelationPr
 
     @Override
     public BaseRelation createRelation(SQLContext sqlContext, SaveMode mode, Map<String, String> parameters, Dataset<Row> data) {
-        System.out.println("Called with writer");
+        LOG.info("Called with writer");
         try {
             data = process(sqlContext, JavaConversions.mapAsJavaMap(parameters), data);
-            CamouflageBaseRelation camouflageBaseRelation = new CamouflageBaseRelation(data, data.sqlContext(), data.schema());
+            CamouflageBaseRelation camouflageBaseRelation = new CamouflageBaseRelation(data, data.sqlContext());
             write(data, parameters, mode);
             return camouflageBaseRelation;
         } catch (IOException | CamouflageApiException e) {
@@ -59,8 +62,7 @@ public class CamouflageSource implements DataSourceRegister, CreatableRelationPr
         if (partitionCols != null && !partitionCols.equals("")) {
             validate(camouflageSerDe, partitionCols, "[%s] columns cannot be part of partition by clause as DLP is being applied on them");
         }
-        if (primaryKeyCols!=null && !primaryKeyCols.equals(""))
-        {
+        if (primaryKeyCols != null && !primaryKeyCols.equals("")) {
             validate(camouflageSerDe, primaryKeyCols, "[%s] columns cannot be part of DLP as they are marked as primary key columns via withPrimaryKeysToIgnore() method ");
         }
     }
@@ -75,6 +77,7 @@ public class CamouflageSource implements DataSourceRegister, CreatableRelationPr
     }
 
     private Dataset<Row> process(SQLContext sqlContext, java.util.Map<String, String> parameters, Dataset<Row> data) throws CamouflageApiException, IOException {
+        LOG.info("THIS IS THE NEW LINE WE WANTED TO ADD");
         StructType schema = data.schema();
         CamouflageSerDe camouflageSerDe = mapper.readValue(parameters.get(JSON), CamouflageSerDe.class);
         validations(parameters, camouflageSerDe);
@@ -89,8 +92,8 @@ public class CamouflageSource implements DataSourceRegister, CreatableRelationPr
                 Arrays.stream(schema.fields()).map(StructField::name).filter(f -> f.equalsIgnoreCase(columnName)).findFirst()
                         .orElseThrow(() -> new IllegalArgumentException(String.format("`%s` column does not exits in spark dataset.\n " +
                                 String.format("Dataset schema is %s", schema), columnName)));
-                System.out.println(parameters);
-                data = data.withColumn(columnName + "_UDF", functions.callUDF(udfName, functions.col(columnName)))
+                LOG.info("Map Parameters" +parameters);
+                data = data.withColumn(columnName + "_UDF", functions.callUDF(udfName, functions.col(columnName).cast(DataTypes.StringType)))
                         .drop(columnName).withColumnRenamed(columnName + "_UDF", columnName);
                 break;
             }
@@ -114,10 +117,10 @@ public class CamouflageSource implements DataSourceRegister, CreatableRelationPr
         try {
             System.out.println("Create Relation called");
             System.out.println(parameters);
-            Dataset<Row> dataset = sqlContext.read().format(parameters.get(CamouflageSource.FORMAT).get())
+            Dataset<Row> dataset = sqlContext.read().options(parameters).format(parameters.get(CamouflageSource.FORMAT).get())
                     .load(parameters.get("path").get().split(","));
             Dataset<Row> df = process(sqlContext, JavaConversions.mapAsJavaMap(parameters), dataset);
-            return new CamouflageBaseRelation(df, sqlContext, dataset.schema());
+            return new CamouflageBaseRelation(df, sqlContext);
         } catch (CamouflageApiException | IOException e) {
             throw new RuntimeException("Failed to read data to Camouflage format", e);
         }
