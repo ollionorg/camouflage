@@ -53,7 +53,7 @@ public class MaskBQRecord extends DoFn<TableRow, TableRow> {
                 Set<AbstractInfoType> infotypes = this.topicAndColumnInfoTypes.get(topic).get(x);
                 if (infotypes != null && infotypes.size() > 0 ) {
                     Iterator<AbstractInfoType> it = infotypes.iterator();
-                    String value = (String) row.get(x);
+                    String value = String.valueOf(row.get(x));
 
                     while (it.hasNext()) {
                         AbstractInfoType infoType = it.next();

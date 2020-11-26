@@ -147,6 +147,34 @@ public class MaskBQRecordTest {
 
     }
 
+    @Test
+    public void TestAllowRecord3() throws Exception {
+        String json = "{\"DLPMetaData\": [{\"topic\": \"rdstest-MYSQL-87-60589.rdstest.customer\", \"columns\": [{\"column\": \"event_time\", \"dlpTypes\": [{\"info_type\": \"TIME,DATE\", \"mask_type\": \"REDACT_CONFIG\", \"replace\": \"*\"}]}, {\"column\": \"user_id\", \"dlpTypes\": [{\"info_type\": \"LOCATION\", \"mask_type\": \"HASH_CONFIG\", \"salt\": \"somesaltgoeshere\"}]}, {\"column\": \"brand\", \"dlpTypes\": [{\"info_type\": \"PERSON_NAME,LOCATION\", \"mask_type\": \"REDACT_CONFIG\", \"replace\": \"*\"}]}]}, {\"topic\": \"rdstest-MYSQL-87-60589.rdstest.test_2gb\", \"columns\": [{\"column\": \"email\", \"dlpTypes\": [{\"info_type\": \"EMAIL_ADDRESS,PERSON_NAME,LOCATION\", \"mask_type\": \"REDACT_CONFIG\", \"replace\": \"*\"}]}, {\"column\": \"name\", \"dlpTypes\": [{\"info_type\": \"PERSON_NAME,LOCATION\", \"mask_type\": \"HASH_CONFIG\", \"salt\": \"somesaltgoeshere\"}]}, {\"column\": \"download_speed\", \"dlpTypes\": [{\"info_type\": \"US_HEALTHCARE_NPI,LOCATION,IMEI_HARDWARE_ID,US_VEHICLE_IDENTIFICATION_NUMBER\", \"mask_type\": \"REDACT_CONFIG\", \"replace\": \"*\"}]}]}]}";
+
+        TableRow tblRow = new TableRow();
+        tblRow.set("id", 1);
+        tblRow.set("department_code", "Data");
+        tblRow.set("views", 5299);
+        tblRow.set("download_speed", 8.6879403769856E13);
+        tblRow.set("isCompromised", 0);
+        tblRow.set("name","Karla Williams");
+        tblRow.set("email","glenn44@yahoo.com");
+        tblRow.set("created_at","2020-10-01T08:13:37Z");
+        tblRow.set("_database_table","rdstest.test_2gb");
+        tblRow.set("_connector_name","rdstest-MYSQL-87-60589");
+        tblRow.set("_ts_ms","1606376167691");
+
+        DoFnTester<TableRow, TableRow> fnTester = DoFnTester.of(new MaskBQRecord(json));
+        fnTester.processElement(tblRow);
+
+        TableRow maskedRecord = fnTester.takeOutputElements().get(0);
+        System.out.println(maskedRecord.toString());
+        assertEquals("*****************",maskedRecord.get("email"));
+        assertEquals(64, String.valueOf(maskedRecord.get("name")).length());
+        assertEquals("******************", String.valueOf(maskedRecord.get("download_speed")));
+
+    }
+
 
     static class Emp {
         private final String name;
