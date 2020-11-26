@@ -13,9 +13,9 @@ public final class HashConfig extends AbstractMaskType implements Serializable {
 
     private final String salt;
     private final byte[] saltBytes;
-    public HashConfig(String salt)
-    {
-        this.salt=salt;
+
+    public HashConfig(String salt) {
+        this.salt = salt;
         this.saltBytes = formatSalt();
     }
 
@@ -30,8 +30,7 @@ public final class HashConfig extends AbstractMaskType implements Serializable {
         else return saltBytes;
     }
 
-    public byte[] getSHA(String input) throws NoSuchAlgorithmException
-    {
+    public byte[] getSHA(String input) throws NoSuchAlgorithmException {
         // Static getInstance method is called with hashing SHA
         MessageDigest md = MessageDigest.getInstance("SHA-256");
         md.update(this.saltBytes);
@@ -41,8 +40,7 @@ public final class HashConfig extends AbstractMaskType implements Serializable {
         return md.digest(input.getBytes(StandardCharsets.UTF_8));
     }
 
-    public  String toHexString(byte[] hash)
-    {
+    public String toHexString(byte[] hash) {
         // Convert byte array into signum representation
         BigInteger number = new BigInteger(1, hash);
 
@@ -50,27 +48,22 @@ public final class HashConfig extends AbstractMaskType implements Serializable {
         StringBuilder hexString = new StringBuilder(number.toString(16));
 
         // Pad with leading zeros
-        while (hexString.length() < 32)
-        {
+        while (hexString.length() < 32) {
             hexString.insert(0, '0');
         }
 
         return hexString.toString();
     }
 
-    public String applyMaskStrategy(String input, String regex)
-    {
+    public String applyMaskStrategy(String input, String regex) {
         try {
+            if (input == null) {
+                return "";
+            }
             return toHexString(getSHA(input));
-        }
-        catch (NoSuchAlgorithmException ex){
-            L
-        }
-        catch ( Exception ex )
-        {
+        } catch (Exception ex) {
             System.out.println(ex);
         }
-        return  "";
-
+        return "";
     }
 }

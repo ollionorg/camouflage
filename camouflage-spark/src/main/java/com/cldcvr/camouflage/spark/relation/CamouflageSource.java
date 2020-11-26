@@ -92,7 +92,7 @@ public class CamouflageSource implements DataSourceRegister, CreatableRelationPr
                 Arrays.stream(schema.fields()).map(StructField::name).filter(f -> f.equalsIgnoreCase(columnName)).findFirst()
                         .orElseThrow(() -> new IllegalArgumentException(String.format("`%s` column does not exits in spark dataset.\n " +
                                 String.format("Dataset schema is %s", schema), columnName)));
-                LOG.info("Map Parameters" +parameters);
+                LOG.info("Map Parameters" + parameters);
                 data = data.withColumn(columnName + "_UDF", functions.callUDF(udfName, functions.col(columnName).cast(DataTypes.StringType)))
                         .drop(columnName).withColumnRenamed(columnName + "_UDF", columnName);
                 break;
@@ -104,7 +104,7 @@ public class CamouflageSource implements DataSourceRegister, CreatableRelationPr
     private void write(Dataset<Row> dataset, Map<String, String> parameters, SaveMode mode) {
         String format = parameters.get(FORMAT).get();
         String path = parameters.get("path").get();
-        String partitionBy = parameters.get(PRIMARY_KEYS_TO_IGNORE_DLP_ON).get();
+        String partitionBy = parameters.contains(PRIMARY_KEYS_TO_IGNORE_DLP_ON) ? parameters.get(PRIMARY_KEYS_TO_IGNORE_DLP_ON).get() : "";
         DataFrameWriter<Row> dataFrameWriter = dataset.write().format(format);
         if (!partitionBy.equals("")) {
             dataFrameWriter.partitionBy(partitionBy.split(","));
