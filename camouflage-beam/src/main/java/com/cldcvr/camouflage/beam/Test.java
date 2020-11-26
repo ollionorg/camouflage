@@ -26,7 +26,7 @@ public class Test {
                 "               \"dlpTypes\":[\n" +
                 "                  {\n" +
                 "                     \"info_type\":\"PHONE_NUMBER\",\n" +
-                "                     \"mask_type\":\"HASH\",\n" +
+                "                     \"mask_type\":\"HASH_CONFIG\",\n" +
                 "                     \"salt\":\"somesaltgoeshere\"\n" +
                 "                  }\n" +
                 "               ]\n" +
@@ -50,7 +50,7 @@ public class Test {
                 "               \"dlpTypes\":[\n" +
                 "                  {\n" +
                 "                     \"info_type\":\"PHONE_NUMBER\",\n" +
-                "                     \"mask_type\":\"HASH\",\n" +
+                "                     \"mask_type\":\"HASH_CONFIG\",\n" +
                 "                     \"salt\":\"somesaltgoeshere\"\n" +
                 "                  }\n" +
                 "               ]\n" +

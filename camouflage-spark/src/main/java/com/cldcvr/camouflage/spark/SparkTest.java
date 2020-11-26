@@ -12,7 +12,7 @@ public class SparkTest {
     public static void main(String[] args) {
         SparkSession session = SparkSession.builder().master("local[*]").getOrCreate();
         Dataset<Row> json = session.read()
-                .json("/Users/taherkoitawala/git/camouflage/camouflage-spark/src/main/resources/input/emp1.json");
+                .json("/Users/jd-v/JD/datapipes/camouflage/camouflage-spark/src/main/resources/emp1.json");
         CamouflageWriter.builder().withDataSet(json).withCamouflageJson(
                        "{\n" +
                                 "      \t\"DLPMetadata\":[{\n" +
@@ -27,8 +27,8 @@ public class SparkTest {
                                 "      \t\t\"column\":\"ssn\",\n" +
                                 "      \t\t\"dlpTypes\":[{\n" +
                                 "      \t\t\t\"info_type\":\"PHONE_NUMBER\",\n" +
-                                "                \"mask_type\":\"REDACT_CONFIG\",\n" +
-                                "                 \"replace\":\"*\"\n" +
+                                "                \"mask_type\":\"HASH_CONFIG\",\n" +
+                                "                 \"salt\":\"data\"\n" +
                                 "      \t\t}\n" +
                                 "             ]\n" +
                                 "      \t}\n" +
@@ -36,7 +36,7 @@ public class SparkTest {
                                 "      }")
                 .format("csv")
                 .mode(SaveMode.Overwrite)
-                .save("/Users/taherkoitawala/git/camouflage/camouflage-spark/src/main/resources/csv/");
+                .save("/Users/jd-v/JD/datapipes/camouflage/camouflage-spark/src/main/resources/csv/");
 
     }
 }

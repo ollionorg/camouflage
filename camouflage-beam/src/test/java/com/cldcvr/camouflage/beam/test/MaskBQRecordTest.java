@@ -34,7 +34,7 @@ public class MaskBQRecordTest {
         String json = "{\n" +
                 "   \"DLPMetaData\":[\n" +
                 "      {\n" +
-                "         \"topic\":\"connect1_db_t1\",\n" +
+                "         \"topic\":\"connect1.db_t1\",\n" +
                 "         \"columns\":[\n" +
                 "            {\n" +
                 "               \"column\":\"card_number\",\n" +
@@ -117,7 +117,7 @@ public class MaskBQRecordTest {
     @Test
     public void TestAllowRecord2() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
-        String json = "{\"DLPMetaData\": [{\"topic\": \"connect1_db_t1\",\"columns\": [{\"column\": \"SSN\",\"dlpTypes\": [{\"info_type\": \"US_SOCIAL_SECURITY_NUMBER\",\"mask_type\": \"REDACT_CONFIG\",\"replace\": \"*\"}]}]}]}";
+        String json = "{\"DLPMetaData\": [{\"topic\": \"connect1.db_t1\",\"columns\": [{\"column\": \"SSN\",\"dlpTypes\": [{\"info_type\": \"US_SOCIAL_SECURITY_NUMBER\",\"mask_type\": \"REDACT_CONFIG\",\"replace\": \"*\"}]}]}]}";
 
 //        String json1 = "{\"DLPMetadata\":[{\"column\":\"card_number\",\"dlpTypes\":[{\"info_type\":\"PHONE_NUMBER\",\"mask_type\":\"REDACT_CONFIG\",\"replace\":\"*\"}]},{\"column\":\"card_pin\",\"dlpTypes\":[{\"info_type\":\"PHONE_NUMBER\",\"mask_type\":\"HASH_CONFIG\",\"salt\":\"somesaltgoeshere\"}]}]}";
         System.out.println(json);

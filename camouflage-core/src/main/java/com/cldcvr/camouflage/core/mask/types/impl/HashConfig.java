@@ -61,7 +61,12 @@ public final class HashConfig extends AbstractMaskType implements Serializable {
                 return "";
             }
             return toHexString(getSHA(input));
-        } catch (Exception ex) {
+        }
+        catch (NoSuchAlgorithmException ex){
+            System.out.println(ex);
+        }
+        catch ( Exception ex )
+        {
             System.out.println(ex);
         }
         return "";
