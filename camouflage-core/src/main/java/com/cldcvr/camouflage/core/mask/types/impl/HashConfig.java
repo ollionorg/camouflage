@@ -8,14 +8,17 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class HashConfig extends AbstractMaskType implements Serializable {
 
     private final String salt;
     private final byte[] saltBytes;
+    private final Logger LOG = LoggerFactory.getLogger(HashConfig.class);
 
     public HashConfig(String salt) {
-        this.salt = salt;
+        this.salt = salt == null ? "" : salt;
         this.saltBytes = formatSalt();
     }
 
@@ -58,16 +61,16 @@ public final class HashConfig extends AbstractMaskType implements Serializable {
     public String applyMaskStrategy(String input, String regex) {
         try {
             if (input == null) {
-                return "";
+                return null;
             }
             return toHexString(getSHA(input));
         }
         catch (NoSuchAlgorithmException ex){
-            System.out.println(ex);
+            LOG.error("Algorithm error :: " + ex.toString());
         }
         catch ( Exception ex )
         {
-            System.out.println(ex);
+            LOG.error("Unknown error while applying hash config :: " + ex.toString());
         }
         return "";
     }

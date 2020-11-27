@@ -29,7 +29,7 @@ public class MaskBQRecord extends DoFn<TableRow, TableRow> {
                     Map<String, Set<AbstractInfoType>> columnAndAbstractType = new HashMap<>();
                     topicAndColumns.getColumnMetadataList().stream().forEach(r -> {
                         try {
-                            columnAndAbstractType.put(r.getColumn(), MapToInfoType.toInfoTypeMapping(r.getDlpTypes()));
+                            columnAndAbstractType.put(r.getColumn().toLowerCase(), MapToInfoType.toInfoTypeMapping(r.getDlpTypes()));
                         } catch (CamouflageApiException e) {
                             throw new RuntimeException(e);
                         }

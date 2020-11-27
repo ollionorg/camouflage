@@ -9,6 +9,8 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.Instant;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.assertEquals;
 
@@ -20,7 +22,8 @@ public class MaskBQRecordTest {
             return Instant.now();
         }
     };
-
+    private final Logger LOG = LoggerFactory.getLogger(MaskBQRecordTest.class);
+    
     @Test
     public void TestRedactConfig() throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
@@ -92,7 +95,7 @@ public class MaskBQRecordTest {
         fnTester.processElement(tblRow);
 
         TableRow maskedRecord = fnTester.takeOutputElements().get(0);
-        System.out.println(maskedRecord.toString());
+        LOG.info(maskedRecord.toString());
         assertEquals(maskedRecord.get("card_number"),"****************");
 
     }
@@ -113,8 +116,8 @@ public class MaskBQRecordTest {
         DoFnTester<TableRow, TableRow> fnTester = DoFnTester.of(new MaskBQRecord(json));
         fnTester.processElement(tblRow);
         TableRow maskedRecord = fnTester.takeOutputElements().get(0);
-        System.out.println(maskedRecord.toString());
-        assertEquals(maskedRecord.get("SSN"),"***********");
+        LOG.info(maskedRecord.toString());
+        assertEquals("redact config should return same length string with replace character","***********",maskedRecord.get("SSN"));
     }
 
     @Test
@@ -138,7 +141,7 @@ public class MaskBQRecordTest {
         fnTester.processElement(tblRow);
 
         TableRow maskedRecord = fnTester.takeOutputElements().get(0);
-        System.out.println(maskedRecord.toString());
+        LOG.info(maskedRecord.toString());
         assertEquals("*****************",maskedRecord.get("email"));
         assertEquals(64, String.valueOf(maskedRecord.get("name")).length());
         assertEquals("******************", String.valueOf(maskedRecord.get("download_speed")));
@@ -155,11 +158,6 @@ public class MaskBQRecordTest {
         tblRow.set("Company", "Maecenas Foundation");
         tblRow.set("City", "Jamshoro");
         tblRow.set("id", 1);
-        tblRow.set("dep",null);
-        tblRow.set("dep1",null);
-        tblRow.set("created_at","2020-09-07T04:37:48Z");
-        tblRow.set("inst",null);
-        tblRow.set("inst1",null);
         tblRow.set("entry_time","2020-08-07T10:22:10Z");
         tblRow.set("_database_table","rdstest.customerdata");
         tblRow.set("_connector_name","rdstest-MYSQL-87-54138");
@@ -169,7 +167,7 @@ public class MaskBQRecordTest {
         fnTester.processElement(tblRow);
 
         TableRow maskedRecord = fnTester.takeOutputElements().get(0);
-        System.out.println(maskedRecord.toString());
+        LOG.info(maskedRecord.toString());
         assertEquals("When column name is in upper case but dlp meta has same column mentioned in lowercase, masking should apply","********",maskedRecord.get("City"));
         assertEquals("Hash config masking should return sting of length 64",64, String.valueOf(maskedRecord.get("Name")).length());
         assertEquals("Company should remain unmasked since no meta provided","Maecenas Foundation", String.valueOf(maskedRecord.get("Company")));
@@ -179,7 +177,7 @@ public class MaskBQRecordTest {
         tblRow.set("Name", "Benedict");
         fnTester.processElement(tblRow);
         maskedRecord = fnTester.takeOutputElements().get(0);
-        System.out.println(maskedRecord.toString());
+        LOG.info(maskedRecord.toString());
         assertEquals("null value should be shown as it is in ouput",null,maskedRecord.get("City"));
         assertEquals("Hash config masking should return sting of length 64",64, String.valueOf(maskedRecord.get("Name")).length());
     }
@@ -194,11 +192,6 @@ public class MaskBQRecordTest {
         tblRow.set("Company", "Maecenas Foundation");
         tblRow.set("City", true);
         tblRow.set("id", 1);
-        tblRow.set("dep",null);
-        tblRow.set("dep1",null);
-        tblRow.set("created_at","2020-09-07T04:37:48Z");
-        tblRow.set("inst",null);
-        tblRow.set("inst1",null);
         tblRow.set("entry_time","2020-08-07T10:22:10Z");
         tblRow.set("_database_table","rdstest.customerdata");
         tblRow.set("_connector_name","rdstest-MYSQL-87-54138");
@@ -208,11 +201,95 @@ public class MaskBQRecordTest {
         fnTester.processElement(tblRow);
 
         TableRow maskedRecord = fnTester.takeOutputElements().get(0);
-        System.out.println(maskedRecord.toString());
+        LOG.info(maskedRecord.toString());
         assertEquals("Hash config masking should return sting of length 64",64, String.valueOf(maskedRecord.get("Name")).length());
         assertEquals("When column name is in upper case but dlp meta has same column mentioned in lowercase, masking should apply","****",maskedRecord.get("City"));
         assertEquals("Company should remain unmasked since no meta provided","Maecenas Foundation", String.valueOf(maskedRecord.get("Company")));
 
+    }
+
+    @Test
+    public void TestHashConfigWithNoSalt() throws Exception {
+        String json = "{\"DLPMetaData\": [{\"topic\": \"rdstest-MYSQL-87-54138.rdstest.customerdata\", \"columns\": [{\"column\": \"city\", \"dlpTypes\": [{\"info_type\": \"LOCATION,PERSON_NAME\", \"mask_type\": \"REDACT_CONFIG\", \"replace\": \"*\"}]}, {\"column\": \"name\", \"dlpTypes\": [{\"info_type\": \"PERSON_NAME\", \"mask_type\": \"HASH_CONFIG\"}]}]}]}";
+
+        TableRow tblRow = new TableRow();
+        tblRow.set("Name", "Benedict");
+        tblRow.set("Company", "Maecenas Foundation");
+        tblRow.set("City", true);
+        tblRow.set("_database_table","rdstest.customerdata");
+        tblRow.set("_connector_name","rdstest-MYSQL-87-54138");
+
+        DoFnTester<TableRow, TableRow> fnTester = DoFnTester.of(new MaskBQRecord(json));
+        fnTester.processElement(tblRow);
+
+        TableRow maskedRecord = fnTester.takeOutputElements().get(0);
+        LOG.info(maskedRecord.toString());
+        assertEquals("Hash config masking should return sting of length 64",64, String.valueOf(maskedRecord.get("Name")).length());
+        assertEquals("When column name is in upper case but dlp meta has same column mentioned in lowercase, masking should apply","****",maskedRecord.get("City"));
+        assertEquals("Company should remain unmasked since no meta provided","Maecenas Foundation", String.valueOf(maskedRecord.get("Company")));
+
+    }
+
+    @Test
+    public void TestRedactConfigWithNoReplaceChar() throws Exception {
+        String json = "{\"DLPMetaData\": [{\"topic\": \"rdstest-MYSQL-87-54138.rdstest.customerdata\", \"columns\": [{\"column\": \"city\", \"dlpTypes\": [{\"info_type\": \"LOCATION,PERSON_NAME\", \"mask_type\": \"REDACT_CONFIG\"}]}]}]}";
+
+        TableRow tblRow = new TableRow();
+        tblRow.set("Name", "Benedict");
+        tblRow.set("Company", "Maecenas Foundation");
+        tblRow.set("City", "New York");
+        tblRow.set("_database_table","rdstest.customerdata");
+        tblRow.set("_connector_name","rdstest-MYSQL-87-54138");
+
+        DoFnTester<TableRow, TableRow> fnTester = DoFnTester.of(new MaskBQRecord(json));
+        fnTester.processElement(tblRow);
+
+        TableRow maskedRecord = fnTester.takeOutputElements().get(0);
+        LOG.info(maskedRecord.toString());
+        assertEquals("When column name is in upper case but dlp meta has same column mentioned in lowercase, masking should apply","********",maskedRecord.get("City"));
+        assertEquals("Company should remain unmasked since no meta provided","Maecenas Foundation", String.valueOf(maskedRecord.get("Company")));
+
+    }
+
+    @Test
+    public void TestRedactConfigWithReplaceCharMoreThanOne() throws Exception {
+        String json = "{\"DLPMetaData\": [{\"topic\": \"rdstest-MYSQL-87-54138.rdstest.customerdata\", \"columns\": [{\"column\": \"city\", \"dlpTypes\": [{\"info_type\": \"LOCATION,PERSON_NAME\", \"mask_type\": \"REDACT_CONFIG\", \"replace\": \"*#\"}]}]}]}";
+
+        TableRow tblRow = new TableRow();
+        tblRow.set("Name", "Benedict");
+        tblRow.set("Company", "Maecenas Foundation");
+        tblRow.set("City", "New York");
+        tblRow.set("_database_table","rdstest.customerdata");
+        tblRow.set("_connector_name","rdstest-MYSQL-87-54138");
+
+        DoFnTester<TableRow, TableRow> fnTester = DoFnTester.of(new MaskBQRecord(json));
+        fnTester.processElement(tblRow);
+
+        TableRow maskedRecord = fnTester.takeOutputElements().get(0);
+        LOG.info(maskedRecord.toString());
+        assertEquals("When column name is in upper case but dlp meta has same column mentioned in lowercase, masking should apply","********",maskedRecord.get("City"));
+        assertEquals("Company should remain unmasked since no meta provided","Maecenas Foundation", String.valueOf(maskedRecord.get("Company")));
+
+    }
+
+    @Test
+    public void TestRedactConfigWithReplaceCharEmpty() throws Exception {
+        String json = "{\"DLPMetaData\": [{\"topic\": \"rdstest-MYSQL-87-54138.rdstest.customerdata\", \"columns\": [{\"column\": \"city\", \"dlpTypes\": [{\"info_type\": \"LOCATION,PERSON_NAME\", \"mask_type\": \"REDACT_CONFIG\", \"replace\": \"\"}]}]}]}";
+
+        TableRow tblRow = new TableRow();
+        tblRow.set("Name", "Benedict");
+        tblRow.set("Company", "Maecenas Foundation");
+        tblRow.set("City", "New York");
+        tblRow.set("_database_table","rdstest.customerdata");
+        tblRow.set("_connector_name","rdstest-MYSQL-87-54138");
+
+        DoFnTester<TableRow, TableRow> fnTester = DoFnTester.of(new MaskBQRecord(json));
+        fnTester.processElement(tblRow);
+
+        TableRow maskedRecord = fnTester.takeOutputElements().get(0);
+        LOG.info(maskedRecord.toString());
+        assertEquals("When column name is in upper case but dlp meta has same column mentioned in lowercase, masking should apply","********",maskedRecord.get("City"));
+        assertEquals("Company should remain unmasked since no meta provided","Maecenas Foundation", String.valueOf(maskedRecord.get("Company")));
 
     }
 }
