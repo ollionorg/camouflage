@@ -30,7 +30,7 @@ present_dir=`pwd`
 cd ../camouflage/
 mvn clean install
 cd $present_dir
-spark_jar_path=`find . -name 'camouflage-spark-*.jar'`
+spark_jar_path=`find . -name 'camouflage-spark-*-SNAPSHOT.jar'`
 echo $spark_jar_path
 spark_jar_name=`echo $spark_jar_path | rev | cut -d'/' -f1 | rev`
 echo $spark_jar_name
