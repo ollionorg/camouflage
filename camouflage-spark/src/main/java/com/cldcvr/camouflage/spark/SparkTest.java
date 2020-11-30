@@ -1,6 +1,7 @@
 package com.cldcvr.camouflage.spark;
 
 
+import com.cldcvr.camouflage.spark.relation.CamouflageReader;
 import com.cldcvr.camouflage.spark.relation.CamouflageWriter;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -11,9 +12,8 @@ public class SparkTest {
 
     public static void main(String[] args) {
         SparkSession session = SparkSession.builder().master("local[*]").getOrCreate();
-        Dataset<Row> json = session.read()
-                .json("/Users/taherkoitawala/git/camouflage/camouflage-spark/src/main/resources/input/emp1.json");
-        CamouflageWriter.builder().withDataSet(json).withCamouflageJson(
+        Dataset<Row> json =
+        CamouflageReader.withSparkSession(session).withCamouflageJson(
                        "{\n" +
                                 "      \t\"DLPMetadata\":[{\n" +
                                 "      \t\t\"column\":\"id\",\n" +
@@ -27,16 +27,16 @@ public class SparkTest {
                                 "      \t\t\"column\":\"ssn\",\n" +
                                 "      \t\t\"dlpTypes\":[{\n" +
                                 "      \t\t\t\"info_type\":\"PHONE_NUMBER\",\n" +
-                                "                \"mask_type\":\"REDACT_CONFIG\",\n" +
-                                "                 \"replace\":\"*\"\n" +
+                                "                \"mask_type\":\"HASH_CONFIG\",\n" +
+                                "                 \"salt\":\"IHAVEASPARKJOB\"\n" +
                                 "      \t\t}\n" +
                                 "             ]\n" +
                                 "      \t}\n" +
                                 "      ]\n" +
                                 "      }")
-                .format("csv")
-                .mode(SaveMode.Overwrite)
-                .save("/Users/taherkoitawala/git/camouflage/camouflage-spark/src/main/resources/csv/");
+                .format("json")
+                .load("/Users/taherkoitawala/git/camouflage/camouflage-spark/src/main/resources/emp.json").getDataset();
+        json.write().csv("/Users/taherkoitawala/git/camouflage/camouflage-spark/src/main/resources/csv/");
 
     }
 }

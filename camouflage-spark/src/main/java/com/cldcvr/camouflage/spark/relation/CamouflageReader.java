@@ -16,16 +16,16 @@ public class CamouflageReader {
 
     private final Dataset<Row> dataset;
 
-    private CamouflageReader(SparkSession session, String json, String format, String[] paths, Map<String, String> extraOptions, String[] keysToIgnore) {
+    private CamouflageReader(SparkSession session, String json, String format, String path, Map<String, String> extraOptions, String[] keysToIgnore) {
         checkOrThrow(json == null || json.equals(""), "CamouflageJson cannot be null or empty");
-        checkOrThrow(paths == null || paths.length == 0, "Input path cannot be null or empty");
+        checkOrThrow(path == null, "Input path cannot be null or empty");
         checkOrThrow(format == null || format.equals(""), "Spark file format cannot be null or empty");
         this.dataset = session.read().format(CamouflageSource.NAME)
                 .option(CamouflageSource.FORMAT, format)
                 .option(CamouflageSource.JSON, json)
                 .option(CamouflageSource.PRIMARY_KEYS_TO_IGNORE_DLP_ON, keysToIgnore == null ? "" : Arrays.stream(keysToIgnore).collect(Collectors.joining(",")))
                 .options(extraOptions)
-                .load(Arrays.stream(paths).collect(Collectors.joining(",")));
+                .load(path);
     }
 
     public Dataset<Row> getDataset() {
@@ -70,8 +70,8 @@ public class CamouflageReader {
             return this;
         }
 
-        public CamouflageReader load(String... paths) {
-            return new CamouflageReader(session, json, format, paths, options, primaryKeys);
+        public CamouflageReader load(String path) {
+            return new CamouflageReader(session, json, format, path, options, primaryKeys);
         }
     }
 }

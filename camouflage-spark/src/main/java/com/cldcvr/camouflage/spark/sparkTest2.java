@@ -31,8 +31,7 @@ public class sparkTest2 {
                 "      ]\n" +
                 "      }")
                 .withPrimaryKeysToIgnore("id","ssn")
-                .load("/Users/taherkoitawala/git/camouflage/camouflage-spark/src/main/resources/input/emp.json",
-                        "/Users/taherkoitawala/git/camouflage/camouflage-spark/src/main/resources/input1/emp1.json")
+                .load("/Users/taherkoitawala/git/camouflage/camouflage-spark/src/main/resources/input/emp.json")
                 .getDataset();
         camouflageDs.show(100);
     }
