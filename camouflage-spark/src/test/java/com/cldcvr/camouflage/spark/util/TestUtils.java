@@ -32,7 +32,7 @@ public class TestUtils {
         return SparkSession.builder().master("local[*]").getOrCreate();
     }
 
-    static void clean(String path) {
+    public static void clean(String path) {
         File file = new File(path);
         if (file.isDirectory()) {
             Stream.of(file.listFiles()).map(r -> r.getPath()).forEach(TestUtils::clean);
