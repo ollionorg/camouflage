@@ -77,7 +77,6 @@ public class CamouflageSource implements DataSourceRegister, CreatableRelationPr
     }
 
     private Dataset<Row> process(SQLContext sqlContext, java.util.Map<String, String> parameters, Dataset<Row> data) throws CamouflageApiException, IOException {
-        LOG.info("THIS IS THE NEW LINE WE WANTED TO ADD");
         StructType schema = data.schema();
         CamouflageSerDe camouflageSerDe = mapper.readValue(parameters.get(JSON), CamouflageSerDe.class);
         validations(parameters, camouflageSerDe);
@@ -118,7 +117,7 @@ public class CamouflageSource implements DataSourceRegister, CreatableRelationPr
             System.out.println("Create Relation called");
             System.out.println(parameters);
             Dataset<Row> dataset = sqlContext.read().options(parameters).format(parameters.get(CamouflageSource.FORMAT).get())
-                    .load(parameters.get("path").get().split(","));
+                    .load(parameters.get("path").get());
             Dataset<Row> df = process(sqlContext, JavaConversions.mapAsJavaMap(parameters), dataset);
             return new CamouflageBaseRelation(df, sqlContext);
         } catch (CamouflageApiException | IOException e) {
