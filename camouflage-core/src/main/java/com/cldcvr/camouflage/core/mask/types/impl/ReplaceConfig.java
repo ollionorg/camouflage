@@ -16,9 +16,9 @@ public class ReplaceConfig extends AbstractMaskType implements Serializable {
     }
 
     public String applyMaskStrategy(String input, String regex) {
-        if (input == null)
+        if(input==null||input.equals(""))
             return null;
-        return input.replaceAll(regex, replace);
+        return input.replaceAll(regex,replace);
 
     }
 
