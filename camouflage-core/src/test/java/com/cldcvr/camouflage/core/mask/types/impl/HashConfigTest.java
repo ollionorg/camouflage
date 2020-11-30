@@ -1,12 +1,7 @@
 package com.cldcvr.camouflage.core.mask.types.impl;
 
-import com.cldcvr.camouflage.core.info.types.AbstractInfoType;
-import com.cldcvr.camouflage.core.info.types.impl.PhoneNumber;
-import com.cldcvr.camouflage.core.mask.types.impl.HashConfig;
-import com.cldcvr.camouflage.core.mask.types.impl.RedactConfig;
-import com.cldcvr.camouflage.core.mask.types.impl.ReplaceConfig;
-import com.oracle.tools.packager.Log;
-import org.junit.Assert;
+import com.cldcvr.camouflage.core.info.types.*;
+import com.cldcvr.camouflage.core.info.types.impl.*;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,12 +13,16 @@ public class HashConfigTest {
     private final Logger LOG = LoggerFactory.getLogger(HashConfigTest.class);
 
     @Test
-    public void TestHashConfigNullSalt() throws Exception {
+    public void TestHashConfigNullSaltOrNullValue() throws Exception {
 
         AbstractInfoType infoType = new PhoneNumber(new HashConfig(null));
         String result = infoType.algorithm("hello world");
         LOG.info(result);
         assertEquals("Hash string length should be 64", 64, result.length());
+
+        String result2 = infoType.algorithm(null);
+        LOG.info(result2);
+        assertEquals("result should be null", null, result2);
     }
 
     @Test
@@ -36,11 +35,43 @@ public class HashConfigTest {
     }
 
     @Test
-    public void TestHashConfigLongSalt() throws Exception {
+    public void TestHashConfigForCarrigeReturnChar() throws Exception {
+
+        AbstractInfoType infoType = new PhoneNumber(new HashConfig("12345678901234567890"));
+        String result = infoType.algorithm("q23\r");
+        assertEquals("Hash string length should be 64", 64, result.length());
+    }
+
+    @Test
+    public void TestHashConfigLongSaltOrLongInput() throws Exception {
 
         AbstractInfoType infoType = new PhoneNumber(new HashConfig("12345678901234567890"));
         String result = infoType.algorithm("hello world");
         LOG.info(result);
         assertEquals("Hash string length should be 64", 64, result.length());
     }
+
+    @Test
+    public void TestHashConfigLongInput() throws Exception {
+
+        AbstractInfoType infoType = new PhoneNumber(new HashConfig("12345678901234567890"));
+        String result = infoType.algorithm("This is a paragraph to test hashing for a very long string. The resultant string should not exceed length of 64 byte no matter how big is input string.");
+        LOG.info(result);
+        assertEquals("Hash string length should be 64", 64, result.length());
+
+    }
+
+    @Test
+    public void TestHashConfigWithNonAsciiChar() throws Exception {
+        AbstractInfoType infoType = new PhoneNumber(new HashConfig("12345678901234567890"));
+        String result = infoType.algorithm("This is भारत");
+        System.out.println(result);
+        assertEquals("Hash string length should be 64",64,result.length());
+
+        String result2 = infoType.algorithm("网络");
+        System.out.println(result2);
+        assertEquals("Hash string length should be 64",64,result2.length());
+    }
+
+
 }
