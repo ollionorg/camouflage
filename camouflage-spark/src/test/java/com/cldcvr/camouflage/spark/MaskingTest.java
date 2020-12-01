@@ -97,6 +97,43 @@ public class MaskingTest {
         Assert.assertEquals(numRecords - ssnNulls, ssnAssertion);
     }
 
+    @Test
+    public void testCaseInsensitiveColumnsInSpark()
+    {
+        int numRecords = 10;
+        Dataset<Row> partiallyNull = getPartiallyNull(numRecords, "cvv");
+        partiallyNull = partiallyNull.withColumnRenamed("cvv","Cvv");
+        partiallyNull.cache();
+        writeDataSet(partiallyNull, inputPath, PARQUET);
+        CamouflageSerDe testSerde = new CamouflageSerDe(Arrays.asList(new ColumnMetadata("cvv", Arrays.asList(new TypeMetadata("PHONE_NUMBER", "REPLACE_CONFIG",
+                        "*", "")))));
+        Dataset<Row> dataset = read(toJson(testSerde));
+
+        List<String> cvvList = rowToString(dataset.select("Cvv").filter(String.format(IS_NOT_NULL, "Cvv")).collectAsList());
+        long cvvAssertion = assertAndCount(cvvList, "***");
+        long cvvNull = partiallyNull.select("Cvv").filter(String.format(IS_NULL, "Cvv")).count();
+        Assert.assertEquals(numRecords - cvvNull, cvvAssertion);
+    }
+
+    @Test
+    public void testCaseOfDlpMetaAndSparkColumnIsDifferent()
+    {
+        int numRecords = 10;
+        Dataset<Row> partiallyNull = getPartiallyNull(numRecords, "cvv");
+        partiallyNull = partiallyNull.withColumnRenamed("cvv","CVV");
+        partiallyNull.cache();
+
+        writeDataSet(partiallyNull, inputPath, PARQUET);
+        CamouflageSerDe testSerde = new CamouflageSerDe(Arrays.asList(new ColumnMetadata("cvv", Arrays.asList(new TypeMetadata("PHONE_NUMBER", "REPLACE_CONFIG",
+                "*", "")))));
+        Dataset<Row> dataset = read(toJson(testSerde));
+
+        List<String> cvvList = rowToString(dataset.select("CVV").filter(String.format(IS_NOT_NULL, "CVV")).collectAsList());
+        long cvvAssertion = assertAndCount(cvvList, "***");
+        long cvvNull = partiallyNull.select("CVV").filter(String.format(IS_NULL, "CVV")).count();
+        Assert.assertEquals(numRecords - cvvNull, cvvAssertion);
+    }
+
     public List<String> rowToString(List<Row> list) {
         return list.stream().map(r -> r.get(0) + "").collect(Collectors.toList());
     }
