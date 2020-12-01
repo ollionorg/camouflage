@@ -87,8 +87,7 @@ public class MaskBQRecordTest {
         tblRow.set("user_id", "90290100");
         tblRow.set("card_number", "4231944811234565");
         tblRow.set("card_pin", "1221");
-        tblRow.set("_connector_name", "connect1");
-        tblRow.set("_database_table","db_t1");
+        tblRow.set("_topic", "connect1.db_t1");
 
 
         DoFnTester<TableRow, TableRow> fnTester = DoFnTester.of(new MaskBQRecord(json));
@@ -110,8 +109,7 @@ public class MaskBQRecordTest {
         tblRow.set("SSN", "552-09-6781");
         tblRow.set("card_number", "4231944811234565");
         tblRow.set("card_pin", "1221");
-        tblRow.set("_connector_name", "connect1");
-        tblRow.set("_database_table","db_t1");
+        tblRow.set("_topic","connect1.db_t1");
 
         DoFnTester<TableRow, TableRow> fnTester = DoFnTester.of(new MaskBQRecord(json));
         fnTester.processElement(tblRow);
@@ -122,7 +120,7 @@ public class MaskBQRecordTest {
 
     @Test
     public void TestMaskRedactConfigForIntValues() throws Exception {
-        String json = "{\"DLPMetaData\": [{\"topic\": \"rdstest-MYSQL-87-60589.rdstest.customer\", \"columns\": [{\"column\": \"event_time\", \"dlpTypes\": [{\"info_type\": \"TIME,DATE\", \"mask_type\": \"REDACT_CONFIG\", \"replace\": \"*\"}]}, {\"column\": \"user_id\", \"dlpTypes\": [{\"info_type\": \"LOCATION\", \"mask_type\": \"HASH_CONFIG\", \"salt\": \"somesaltgoeshere\"}]}, {\"column\": \"brand\", \"dlpTypes\": [{\"info_type\": \"PERSON_NAME,LOCATION\", \"mask_type\": \"REDACT_CONFIG\", \"replace\": \"*\"}]}]}, {\"topic\": \"rdstest-MYSQL-87-60589.rdstest.test_2gb\", \"columns\": [{\"column\": \"email\", \"dlpTypes\": [{\"info_type\": \"EMAIL_ADDRESS,PERSON_NAME,LOCATION\", \"mask_type\": \"REDACT_CONFIG\", \"replace\": \"*\"}]}, {\"column\": \"name\", \"dlpTypes\": [{\"info_type\": \"PERSON_NAME,LOCATION\", \"mask_type\": \"HASH_CONFIG\", \"salt\": \"somesaltgoeshere\"}]}, {\"column\": \"download_speed\", \"dlpTypes\": [{\"info_type\": \"US_HEALTHCARE_NPI,LOCATION,IMEI_HARDWARE_ID,US_VEHICLE_IDENTIFICATION_NUMBER\", \"mask_type\": \"REDACT_CONFIG\", \"replace\": \"*\"}]}]}]}";
+        String json = "{\"DLPMetaData\": [{\"topic\": \"rdstest-MYSQL-87-60589.rdstest.customer\", \"columns\": [{\"column\": \"event_time\", \"dlpTypes\": [{\"info_type\": \"TIME,DATE\", \"mask_type\": \"REDACT_CONFIG\", \"replace\": \"*\"}]}, {\"column\": \"user_id\", \"dlpTypes\": [{\"info_type\": \"LOCATION\", \"mask_type\": \"HASH_CONFIG\", \"salt\": \"somesaltgoeshere\"}]}, {\"column\": \"brand\", \"dlpTypes\": [{\"info_type\": \"PERSON_NAME,LOCATION\", \"mask_type\": \"REDACT_CONFIG\", \"replace\": \"*\"}]}]}, {\"topic\": \"rdstest-MYSQL-87-60589.rdstest.test_2gb\", \"columns\": [{\"column\": \"email\", \"dlpTypes\": [{\"info_type\": \"EMAIL_ADDRESS,PERSON_NAME,LOCATION\", \"mask_type\": \"REDACT_CONFIG\", \"replace\": \"*\"}]}, {\"column\": \"Name\", \"dlpTypes\": [{\"info_type\": \"PERSON_NAME,LOCATION\", \"mask_type\": \"HASH_CONFIG\", \"salt\": \"somesaltgoeshere\"}]}, {\"column\": \"download_speed\", \"dlpTypes\": [{\"info_type\": \"US_HEALTHCARE_NPI,LOCATION,IMEI_HARDWARE_ID,US_VEHICLE_IDENTIFICATION_NUMBER\", \"mask_type\": \"REDACT_CONFIG\", \"replace\": \"*\"}]}]}]}";
 
         TableRow tblRow = new TableRow();
         tblRow.set("id", 1);
@@ -130,12 +128,10 @@ public class MaskBQRecordTest {
         tblRow.set("views", 5299);
         tblRow.set("download_speed", 8.6879403769856E13);
         tblRow.set("isCompromised", 0);
-        tblRow.set("name","Karla Williams");
+        tblRow.set("Name","Karla Williams");
         tblRow.set("email","glenn44@yahoo.com");
         tblRow.set("created_at","2020-10-01T08:13:37Z");
-        tblRow.set("_database_table","rdstest.test_2gb");
-        tblRow.set("_connector_name","rdstest-MYSQL-87-60589");
-        tblRow.set("_ts_ms","1606376167691");
+        tblRow.set("_topic","rdstest-MYSQL-87-60589.rdstest.test_2gb");
 
         DoFnTester<TableRow, TableRow> fnTester = DoFnTester.of(new MaskBQRecord(json));
         fnTester.processElement(tblRow);
@@ -143,14 +139,14 @@ public class MaskBQRecordTest {
         TableRow maskedRecord = fnTester.takeOutputElements().get(0);
         LOG.info(maskedRecord.toString());
         assertEquals("*****************",maskedRecord.get("email"));
-        assertEquals(64, String.valueOf(maskedRecord.get("name")).length());
+        assertEquals(64, String.valueOf(maskedRecord.get("Name")).length());
         assertEquals("******************", String.valueOf(maskedRecord.get("download_speed")));
 
     }
 
     @Test
     public void TestMaskingRcordWithUpperCase() throws Exception {
-        String json = "{\"DLPMetaData\": [{\"topic\": \"rdstest-MYSQL-87-54138.rdstest.customerdata\", \"columns\": [{\"column\": \"city\", \"dlpTypes\": [{\"info_type\": \"LOCATION,PERSON_NAME\", \"mask_type\": \"REDACT_CONFIG\", \"replace\": \"*\"}]}, {\"column\": \"name\", \"dlpTypes\": [{\"info_type\": \"PERSON_NAME\", \"mask_type\": \"HASH_CONFIG\", \"salt\": \"nikhil\"}]}]}]}";
+        String json = "{\"DLPMetaData\": [{\"topic\": \"rdstest-MYSQL-87-54138.rdstest.customerdata\", \"columns\": [{\"column\": \"City\", \"dlpTypes\": [{\"info_type\": \"LOCATION,PERSON_NAME\", \"mask_type\": \"REDACT_CONFIG\", \"replace\": \"*\"}]}, {\"column\": \"Name\", \"dlpTypes\": [{\"info_type\": \"PERSON_NAME\", \"mask_type\": \"HASH_CONFIG\", \"salt\": \"nikhil\"}]}]}]}";
 
         TableRow tblRow = new TableRow();
         tblRow.set("entry_date", 1556928000);
@@ -159,16 +155,14 @@ public class MaskBQRecordTest {
         tblRow.set("City", "Jamshoro");
         tblRow.set("id", 1);
         tblRow.set("entry_time","2020-08-07T10:22:10Z");
-        tblRow.set("_database_table","rdstest.customerdata");
-        tblRow.set("_connector_name","rdstest-MYSQL-87-54138");
-        tblRow.set("_ts_ms","1606457541073");
+        tblRow.set("_topic","rdstest-MYSQL-87-54138.rdstest.customerdata");
 
         DoFnTester<TableRow, TableRow> fnTester = DoFnTester.of(new MaskBQRecord(json));
         fnTester.processElement(tblRow);
 
         TableRow maskedRecord = fnTester.takeOutputElements().get(0);
         LOG.info(maskedRecord.toString());
-        assertEquals("When column name is in upper case but dlp meta has same column mentioned in lowercase, masking should apply","********",maskedRecord.get("City"));
+        assertEquals("When column Name is in upper case but dlp meta has same column mentioned in lowercase, masking should apply","********",maskedRecord.get("City"));
         assertEquals("Hash config masking should return sting of length 64",64, String.valueOf(maskedRecord.get("Name")).length());
         assertEquals("Company should remain unmasked since no meta provided","Maecenas Foundation", String.valueOf(maskedRecord.get("Company")));
 
@@ -184,7 +178,7 @@ public class MaskBQRecordTest {
 
     @Test
     public void TestMaskingRcordWithBooleanValue() throws Exception {
-        String json = "{\"DLPMetaData\": [{\"topic\": \"rdstest-MYSQL-87-54138.rdstest.customerdata\", \"columns\": [{\"column\": \"city\", \"dlpTypes\": [{\"info_type\": \"LOCATION,PERSON_NAME\", \"mask_type\": \"REDACT_CONFIG\", \"replace\": \"*\"}]}, {\"column\": \"name\", \"dlpTypes\": [{\"info_type\": \"PERSON_NAME\", \"mask_type\": \"HASH_CONFIG\", \"salt\": \"nikhil\"}]}]}]}";
+        String json = "{\"DLPMetaData\": [{\"topic\": \"rdstest-MYSQL-87-54138.rdstest.customerdata\", \"columns\": [{\"column\": \"City\", \"dlpTypes\": [{\"info_type\": \"LOCATION,PERSON_NAME\", \"mask_type\": \"REDACT_CONFIG\", \"replace\": \"*\"}]}, {\"column\": \"Name\", \"dlpTypes\": [{\"info_type\": \"PERSON_NAME\", \"mask_type\": \"HASH_CONFIG\", \"salt\": \"nikhil\"}]}]}]}";
 
         TableRow tblRow = new TableRow();
         tblRow.set("entry_date", 1556928000);
@@ -193,9 +187,7 @@ public class MaskBQRecordTest {
         tblRow.set("City", true);
         tblRow.set("id", 1);
         tblRow.set("entry_time","2020-08-07T10:22:10Z");
-        tblRow.set("_database_table","rdstest.customerdata");
-        tblRow.set("_connector_name","rdstest-MYSQL-87-54138");
-        tblRow.set("_ts_ms","1606457541073");
+        tblRow.set("_topic","rdstest-MYSQL-87-54138.rdstest.customerdata");
 
         DoFnTester<TableRow, TableRow> fnTester = DoFnTester.of(new MaskBQRecord(json));
         fnTester.processElement(tblRow);
@@ -203,21 +195,20 @@ public class MaskBQRecordTest {
         TableRow maskedRecord = fnTester.takeOutputElements().get(0);
         LOG.info(maskedRecord.toString());
         assertEquals("Hash config masking should return sting of length 64",64, String.valueOf(maskedRecord.get("Name")).length());
-        assertEquals("When column name is in upper case but dlp meta has same column mentioned in lowercase, masking should apply","****",maskedRecord.get("City"));
+        assertEquals("When column Name is in upper case but dlp meta has same column mentioned in lowercase, masking should apply","****",maskedRecord.get("City"));
         assertEquals("Company should remain unmasked since no meta provided","Maecenas Foundation", String.valueOf(maskedRecord.get("Company")));
 
     }
 
     @Test
     public void TestHashConfigWithNoSalt() throws Exception {
-        String json = "{\"DLPMetaData\": [{\"topic\": \"rdstest-MYSQL-87-54138.rdstest.customerdata\", \"columns\": [{\"column\": \"city\", \"dlpTypes\": [{\"info_type\": \"LOCATION,PERSON_NAME\", \"mask_type\": \"REDACT_CONFIG\", \"replace\": \"*\"}]}, {\"column\": \"name\", \"dlpTypes\": [{\"info_type\": \"PERSON_NAME\", \"mask_type\": \"HASH_CONFIG\"}]}]}]}";
+        String json = "{\"DLPMetaData\": [{\"topic\": \"rdstest-MYSQL-87-54138.rdstest.customerdata\", \"columns\": [{\"column\": \"City\", \"dlpTypes\": [{\"info_type\": \"LOCATION,PERSON_NAME\", \"mask_type\": \"REDACT_CONFIG\", \"replace\": \"*\"}]}, {\"column\": \"Name\", \"dlpTypes\": [{\"info_type\": \"PERSON_NAME\", \"mask_type\": \"HASH_CONFIG\"}]}]}]}";
 
         TableRow tblRow = new TableRow();
         tblRow.set("Name", "Benedict");
         tblRow.set("Company", "Maecenas Foundation");
         tblRow.set("City", true);
-        tblRow.set("_database_table","rdstest.customerdata");
-        tblRow.set("_connector_name","rdstest-MYSQL-87-54138");
+        tblRow.set("_topic","rdstest-MYSQL-87-54138.rdstest.customerdata");
 
         DoFnTester<TableRow, TableRow> fnTester = DoFnTester.of(new MaskBQRecord(json));
         fnTester.processElement(tblRow);
@@ -225,71 +216,108 @@ public class MaskBQRecordTest {
         TableRow maskedRecord = fnTester.takeOutputElements().get(0);
         LOG.info(maskedRecord.toString());
         assertEquals("Hash config masking should return sting of length 64",64, String.valueOf(maskedRecord.get("Name")).length());
-        assertEquals("When column name is in upper case but dlp meta has same column mentioned in lowercase, masking should apply","****",maskedRecord.get("City"));
+        assertEquals("When column Name is in upper case but dlp meta has same column mentioned in lowercase, masking should apply","****",maskedRecord.get("City"));
         assertEquals("Company should remain unmasked since no meta provided","Maecenas Foundation", String.valueOf(maskedRecord.get("Company")));
 
     }
 
     @Test
     public void TestRedactConfigWithNoReplaceChar() throws Exception {
-        String json = "{\"DLPMetaData\": [{\"topic\": \"rdstest-MYSQL-87-54138.rdstest.customerdata\", \"columns\": [{\"column\": \"city\", \"dlpTypes\": [{\"info_type\": \"LOCATION,PERSON_NAME\", \"mask_type\": \"REDACT_CONFIG\"}]}]}]}";
+        String json = "{\"DLPMetaData\": [{\"topic\": \"rdstest-MYSQL-87-54138.rdstest.customerdata\", \"columns\": [{\"column\": \"City\", \"dlpTypes\": [{\"info_type\": \"LOCATION,PERSON_NAME\", \"mask_type\": \"REDACT_CONFIG\"}]}]}]}";
 
         TableRow tblRow = new TableRow();
         tblRow.set("Name", "Benedict");
         tblRow.set("Company", "Maecenas Foundation");
         tblRow.set("City", "New York");
-        tblRow.set("_database_table","rdstest.customerdata");
-        tblRow.set("_connector_name","rdstest-MYSQL-87-54138");
+        tblRow.set("_topic","rdstest-MYSQL-87-54138.rdstest.customerdata");
 
         DoFnTester<TableRow, TableRow> fnTester = DoFnTester.of(new MaskBQRecord(json));
         fnTester.processElement(tblRow);
 
         TableRow maskedRecord = fnTester.takeOutputElements().get(0);
         LOG.info(maskedRecord.toString());
-        assertEquals("When column name is in upper case but dlp meta has same column mentioned in lowercase, masking should apply","********",maskedRecord.get("City"));
+        assertEquals("When column Name is in upper case but dlp meta has same column mentioned in lowercase, masking should apply","********",maskedRecord.get("City"));
         assertEquals("Company should remain unmasked since no meta provided","Maecenas Foundation", String.valueOf(maskedRecord.get("Company")));
 
     }
 
     @Test
     public void TestRedactConfigWithReplaceCharMoreThanOne() throws Exception {
-        String json = "{\"DLPMetaData\": [{\"topic\": \"rdstest-MYSQL-87-54138.rdstest.customerdata\", \"columns\": [{\"column\": \"city\", \"dlpTypes\": [{\"info_type\": \"LOCATION,PERSON_NAME\", \"mask_type\": \"REDACT_CONFIG\", \"replace\": \"*#\"}]}]}]}";
+        String json = "{\"DLPMetaData\": [{\"topic\": \"rdstest-MYSQL-87-54138.rdstest.customerdata\", \"columns\": [{\"column\": \"City\", \"dlpTypes\": [{\"info_type\": \"LOCATION,PERSON_NAME\", \"mask_type\": \"REDACT_CONFIG\", \"replace\": \"*#\"}]}]}]}";
 
         TableRow tblRow = new TableRow();
         tblRow.set("Name", "Benedict");
         tblRow.set("Company", "Maecenas Foundation");
         tblRow.set("City", "New York");
-        tblRow.set("_database_table","rdstest.customerdata");
-        tblRow.set("_connector_name","rdstest-MYSQL-87-54138");
+        tblRow.set("_topic","rdstest-MYSQL-87-54138.rdstest.customerdata");
 
         DoFnTester<TableRow, TableRow> fnTester = DoFnTester.of(new MaskBQRecord(json));
         fnTester.processElement(tblRow);
 
         TableRow maskedRecord = fnTester.takeOutputElements().get(0);
         LOG.info(maskedRecord.toString());
-        assertEquals("When column name is in upper case but dlp meta has same column mentioned in lowercase, masking should apply","********",maskedRecord.get("City"));
+        assertEquals("When column Name is in upper case but dlp meta has same column mentioned in lowercase, masking should apply","********",maskedRecord.get("City"));
         assertEquals("Company should remain unmasked since no meta provided","Maecenas Foundation", String.valueOf(maskedRecord.get("Company")));
 
     }
 
     @Test
     public void TestRedactConfigWithReplaceCharEmpty() throws Exception {
-        String json = "{\"DLPMetaData\": [{\"topic\": \"rdstest-MYSQL-87-54138.rdstest.customerdata\", \"columns\": [{\"column\": \"city\", \"dlpTypes\": [{\"info_type\": \"LOCATION,PERSON_NAME\", \"mask_type\": \"REDACT_CONFIG\", \"replace\": \"\"}]}]}]}";
+        String json = "{\"DLPMetaData\": [{\"topic\": \"rdstest-MYSQL-87-54138.rdstest.customerdata\", \"columns\": [{\"column\": \"City\", \"dlpTypes\": [{\"info_type\": \"LOCATION,PERSON_NAME\", \"mask_type\": \"REDACT_CONFIG\", \"replace\": \"\"}]}]}]}";
 
         TableRow tblRow = new TableRow();
         tblRow.set("Name", "Benedict");
         tblRow.set("Company", "Maecenas Foundation");
         tblRow.set("City", "New York");
-        tblRow.set("_database_table","rdstest.customerdata");
-        tblRow.set("_connector_name","rdstest-MYSQL-87-54138");
+        tblRow.set("_topic","rdstest-MYSQL-87-54138.rdstest.customerdata");
 
         DoFnTester<TableRow, TableRow> fnTester = DoFnTester.of(new MaskBQRecord(json));
         fnTester.processElement(tblRow);
 
         TableRow maskedRecord = fnTester.takeOutputElements().get(0);
         LOG.info(maskedRecord.toString());
-        assertEquals("When column name is in upper case but dlp meta has same column mentioned in lowercase, masking should apply","********",maskedRecord.get("City"));
+        assertEquals("When column Name is in upper case but dlp meta has same column mentioned in lowercase, masking should apply","********",maskedRecord.get("City"));
         assertEquals("Company should remain unmasked since no meta provided","Maecenas Foundation", String.valueOf(maskedRecord.get("Company")));
+
+    }
+
+    @Test
+    public void TestRecordWithNoValidTopic() throws Exception {
+        String json = "{\"DLPMetaData\": [{\"topic\": \"rdstest-MYSQL-87-541380.rdstest.customerdata\", \"columns\": [{\"column\": \"City\", \"dlpTypes\": [{\"info_type\": \"LOCATION,PERSON_NAME\", \"mask_type\": \"REDACT_CONFIG\", \"replace\": \"\"}]}]}]}";
+
+        TableRow tblRow = new TableRow();
+        tblRow.set("Name", "Benedict");
+        tblRow.set("Company", "Maecenas Foundation");
+        tblRow.set("City", "New York");
+        tblRow.set("_topic","rdstest-MYSQL-87-54138.rdstest.customerdata");
+
+        DoFnTester<TableRow, TableRow> fnTester = DoFnTester.of(new MaskBQRecord(json));
+        fnTester.processElement(tblRow);
+
+        TableRow maskedRecord = fnTester.takeOutputElements().get(0);
+        LOG.info(maskedRecord.toString());
+        assertEquals("Record should remain unaffected","New York",maskedRecord.get("City"));
+        assertEquals("Record should remain unaffected","Maecenas Foundation", String.valueOf(maskedRecord.get("Company")));
+
+    }
+
+    @Test
+    public void TestRecordWithNoColToMask() throws Exception {
+        String json = "{\"DLPMetaData\": [{\"topic\": \"rdstest-MYSQL-87-54138.rdstest.customerdata\", \"columns\": [{\"column\": \"City\", \"dlpTypes\": [{\"info_type\": \"LOCATION,PERSON_NAME\", \"mask_type\": \"REDACT_CONFIG\", \"replace\": \"\"}]}]}]}";
+
+        TableRow tblRow = new TableRow();
+        tblRow.set("Name1", "Benedict");
+        tblRow.set("Company1", "Maecenas Foundation");
+        tblRow.set("City1", "New York");
+        tblRow.set("_topic","rdstest-MYSQL-87-54138.rdstest.customerdata");
+
+        DoFnTester<TableRow, TableRow> fnTester = DoFnTester.of(new MaskBQRecord(json));
+        fnTester.processElement(tblRow);
+
+        TableRow maskedRecord = fnTester.takeOutputElements().get(0);
+        LOG.info(maskedRecord.toString());
+        assertEquals("Record should remain unaffected","New York",maskedRecord.get("City1"));
+        assertEquals("Record should remain unaffected","Maecenas Foundation", String.valueOf(maskedRecord.get("Company1")));
 
     }
 }
