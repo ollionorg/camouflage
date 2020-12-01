@@ -58,7 +58,7 @@ public class TestUtils {
                 .map(StructField::name)
                 .filter(cols::contains)
                 .forEach(f -> {
-                    StructField structField = Arrays.stream(testRecords.schema().fields()).filter(s -> s.name().equals(f)).findFirst().get();
+                    StructField structField = Arrays.stream(testRecords.schema().fields()).filter(s -> s.name().equalsIgnoreCase(f)).findFirst().get();
                     getSession().sqlContext().udf().register(f + "_nullable", nullableUdf, structField.dataType());
                     temp.set(temp.get().withColumn(f, functions.callUDF(f + "_nullable", functions.col(f))));
                 });
