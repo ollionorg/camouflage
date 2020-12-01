@@ -29,7 +29,7 @@ public class MaskBQRecord extends DoFn<TableRow, TableRow> {
                     Map<String, Set<AbstractInfoType>> columnAndAbstractType = new HashMap<>();
                     topicAndColumns.getColumnMetadataList().stream().forEach(r -> {
                         try {
-                            columnAndAbstractType.put(r.getColumn().toLowerCase(), MapToInfoType.toInfoTypeMapping(r.getDlpTypes()));
+                            columnAndAbstractType.put(r.getColumn(), MapToInfoType.toInfoTypeMapping(r.getDlpTypes()));
                         } catch (CamouflageApiException e) {
                             throw new RuntimeException(e);
                         }
@@ -43,22 +43,24 @@ public class MaskBQRecord extends DoFn<TableRow, TableRow> {
     public void processElement(ProcessContext c) {
         TableRow row = c.element();
         try {
-            String topic = String.format("%s.%s", row.get("_connector_name"), row.get("_database_table"));
+            String topic =  String.valueOf(row.get("_topic"));
             Map<String, Set<AbstractInfoType>> colMap = this.topicAndColumnInfoTypes.get(topic);
 
             if (colMap != null) {
-                row.forEach((k, v) -> {
+                colMap.forEach((k, v) -> {
                     if (k == null || v == null)
                         return;
-                    Set<AbstractInfoType> infoSet = colMap.get(k.toLowerCase());
-                    if (infoSet != null) {
-                        Iterator<AbstractInfoType> it = infoSet.iterator();
+                    Object item = row.get(k);
+                    String data = item == null ? null : String.valueOf(item);
+
+                    if (data != null) {
+                        Iterator<AbstractInfoType> it = v.iterator();
                         while (it.hasNext()) {
                             AbstractInfoType infoType = it.next();
-                            v = infoType.getMaskStrategy().applyMaskStrategy(String.valueOf(v), infoType.regex());
+                            data = infoType.getMaskStrategy().applyMaskStrategy(data, infoType.regex());
                             break;
                         }
-                        row.set(k, v);
+                        row.set(k, data);
                     }
                 });
             }
