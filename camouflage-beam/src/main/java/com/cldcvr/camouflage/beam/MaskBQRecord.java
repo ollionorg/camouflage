@@ -68,8 +68,6 @@ public class MaskBQRecord extends DoFn<TableRow, TableRow> {
             c.output(row);
         } catch (Exception e) {
             LOG.error("TableRow failed when applying mask transformation", e);
-        } finally {
-            c.output(row);
         }
     }
 
