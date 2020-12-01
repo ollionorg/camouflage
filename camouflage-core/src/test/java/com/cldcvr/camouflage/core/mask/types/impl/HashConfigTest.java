@@ -73,5 +73,13 @@ public class HashConfigTest {
         assertEquals("Hash string length should be 64",64,result2.length());
     }
 
+    @Test
+    public void testForStringLengthLessThan64()
+    {
+        HashConfig hashConfig = new HashConfig("THIS_IS_SALTY");
+        String maskStrategy = hashConfig.applyMaskStrategy("8253474535", "");
+        assertEquals(64, maskStrategy.length());
+    }
+
 
 }
