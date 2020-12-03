@@ -29,7 +29,7 @@ jobs:
         path: current/datapipes-mvn-repo
     
     - name: Build snapshot with Maven
-      run: mvn clean install --file camouflage/pom.xml
+      run: mvn clean install
 
     - name: Find spark jar file
       id: spark_jar_file
