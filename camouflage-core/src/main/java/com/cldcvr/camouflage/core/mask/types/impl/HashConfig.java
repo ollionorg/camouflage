@@ -8,15 +8,26 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Masks data with a hash string.
+ * Note: Changes in salt over the same input will result in different hash strings.
+ */
 public final class HashConfig extends AbstractMaskType implements Serializable {
 
     private final String salt;
     private final byte[] saltBytes;
     private final Logger LOG = LoggerFactory.getLogger(HashConfig.class);
 
+    /**
+     * Accepts a salt string from the used or then uses blank as default.
+     * Strips salt string to only 16 chars.
+     *
+     * @param salt
+     */
     public HashConfig(String salt) {
         this.salt = salt == null ? "" : salt;
         this.saltBytes = formatSalt();
@@ -26,6 +37,11 @@ public final class HashConfig extends AbstractMaskType implements Serializable {
         return "HASH_CONFIG";
     }
 
+    /**
+     * Strips salt to 16 chars and converts to byte array.
+     *
+     * @return
+     */
     public byte[] formatSalt() {
         byte[] saltBytes = this.salt.getBytes();
         if (saltBytes.length > 16)
@@ -33,6 +49,13 @@ public final class HashConfig extends AbstractMaskType implements Serializable {
         else return saltBytes;
     }
 
+    /**
+     * Takes the input string and generates a hash digest for the same
+     *
+     * @param input String to hash.
+     * @return byte array of hash digest.
+     * @throws NoSuchAlgorithmException
+     */
     public byte[] getSHA(String input) throws NoSuchAlgorithmException {
         // Static getInstance method is called with hashing SHA
         MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -43,6 +66,12 @@ public final class HashConfig extends AbstractMaskType implements Serializable {
         return md.digest(input.getBytes(StandardCharsets.UTF_8));
     }
 
+    /**
+     * Changes byte array of hash to String
+     *
+     * @param hash
+     * @return
+     */
     public String toHexString(byte[] hash) {
         // Convert byte array into signum representation
         BigInteger number = new BigInteger(1, hash);
@@ -58,18 +87,22 @@ public final class HashConfig extends AbstractMaskType implements Serializable {
         return hexString.toString();
     }
 
+    /**
+     * Apply masking over input
+     *
+     * @param input String to mask
+     * @param regex Not used here as salt is being applied.
+     * @return
+     */
     public String applyMaskStrategy(String input, String regex) {
         try {
             if (input == null) {
                 return null;
             }
             return toHexString(getSHA(input));
-        }
-        catch (NoSuchAlgorithmException ex){
+        } catch (NoSuchAlgorithmException ex) {
             LOG.error("Algorithm error :: " + ex.toString());
-        }
-        catch ( Exception ex )
-        {
+        } catch (Exception ex) {
             LOG.error("Unknown error while applying hash config :: " + ex.toString());
         }
         return "";

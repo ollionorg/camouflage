@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
 
+/**
+ * Class is used for jackson parsing from JSON string to Object representation
+ */
 public class TypeMetadata implements Serializable {
 
     private final String infoType;
@@ -11,6 +14,15 @@ public class TypeMetadata implements Serializable {
     private final String replace;
     private final String salt;
 
+    /**
+     * Accepts params to express the required InfoType with MaskType to be used with replacement string if at all
+     * regex based approach is used (Optional) or accepts a salt string is hash based masking is used (Optional)
+     *
+     * @param infoType String name of the infoType to be used.
+     * @param maskType String name of the MaskType to be used.
+     * @param replace  String to replace if a regex match is applied
+     * @param salt     String to use as salt if hash based mask is applied
+     */
     public TypeMetadata(@JsonProperty("info_type") String infoType,
                         @JsonProperty("mask_type") String maskType,
                         @JsonProperty("replace") String replace,

@@ -9,6 +9,11 @@ import java.io.Serializable;
 public class CharacterMaskConfig extends AbstractMaskType implements Serializable {
 
     private final Character ch;
+
+    /**
+     * Accepts to be replace
+     * @param ch
+     */
     public CharacterMaskConfig(Character ch)
     {
         this.ch=ch;
