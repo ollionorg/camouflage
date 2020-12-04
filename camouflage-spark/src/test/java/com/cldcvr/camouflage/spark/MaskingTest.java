@@ -10,9 +10,12 @@ import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -98,15 +101,14 @@ public class MaskingTest {
     }
 
     @Test
-    public void testCaseInsensitiveColumnsInSpark()
-    {
+    public void testCaseInsensitiveColumnsInSpark() {
         int numRecords = 10;
         Dataset<Row> partiallyNull = getPartiallyNull(numRecords, "cvv");
-        partiallyNull = partiallyNull.withColumnRenamed("cvv","Cvv");
+        partiallyNull = partiallyNull.withColumnRenamed("cvv", "Cvv");
         partiallyNull.cache();
         writeDataSet(partiallyNull, inputPath, PARQUET);
         CamouflageSerDe testSerde = new CamouflageSerDe(Arrays.asList(new ColumnMetadata("cvv", Arrays.asList(new TypeMetadata("PHONE_NUMBER", "REPLACE_CONFIG",
-                        "*", "")))));
+                "*", "")))));
         Dataset<Row> dataset = read(toJson(testSerde));
 
         List<String> cvvList = rowToString(dataset.select("Cvv").filter(String.format(IS_NOT_NULL, "Cvv")).collectAsList());
@@ -116,11 +118,10 @@ public class MaskingTest {
     }
 
     @Test
-    public void testCaseOfDlpMetaAndSparkColumnIsDifferent()
-    {
+    public void testCaseOfDlpMetaAndSparkColumnIsDifferent() {
         int numRecords = 10;
         Dataset<Row> partiallyNull = getPartiallyNull(numRecords, "cvv");
-        partiallyNull = partiallyNull.withColumnRenamed("cvv","CVV");
+        partiallyNull = partiallyNull.withColumnRenamed("cvv", "CVV");
         partiallyNull.cache();
 
         writeDataSet(partiallyNull, inputPath, PARQUET);
@@ -147,8 +148,49 @@ public class MaskingTest {
         }
     }
 
+    @Test
+    public void testIfHashConfigHasNoSalt() {
+        int numRecords = 10;
+        String salt = null;
+        Dataset<Row> partiallyNull = getPartiallyNull(numRecords, "ssn");
+        partiallyNull.cache();
+        writeDataSet(partiallyNull, inputPath, PARQUET);
+        CamouflageSerDe testSerde = new CamouflageSerDe(Arrays.asList(new ColumnMetadata("ssn",
+                Arrays.asList(new TypeMetadata("SSN", "HASH_CONFIG", "", salt)))));
+        Dataset<Row> dataset = read(toJson(testSerde));
+
+        Set<String> ssnActual = new HashSet<>(rowToString(dataset.select("SSN").filter(String.format(IS_NOT_NULL, "SSN")).collectAsList()));
+        long ssnAssertion = ssnActual.stream().filter(f -> f.length() == 64).count();
+        long ssnNulls = partiallyNull.select("SSN").filter(String.format(IS_NULL, "SSN")).count();
+        Set<String> ssnExpected = rowToString(partiallyNull.select("SSN").filter(String.format(IS_NOT_NULL, "SSN")).collectAsList())
+                .stream().map(v -> new HashConfig(salt).applyMaskStrategy(v, "")).collect(Collectors.toSet());
+        Assert.assertEquals(ssnActual, ssnExpected);
+        Assert.assertEquals(numRecords - ssnNulls, ssnAssertion);
+    }
+
+    @Test
+    public void testRedactConfigHasNoReplace() {
+        int numRecords = 10;
+        Dataset<Row> partiallyNull = getPartiallyNull(numRecords, "ssn");
+        partiallyNull.cache();
+        writeDataSet(partiallyNull, inputPath, PARQUET);
+        CamouflageSerDe camouflageSerDe = null;
+        try {
+            camouflageSerDe = mapper.readValue("{\"dlpMetadata\":[{\"column\":\"ssn\",\"dlpTypes\":[{\"infoType\":\"SSN\",\"maskType\":\"REDACT_CONFIG\"}]}]}", CamouflageSerDe.class);
+        } catch (IOException e) {
+            Assert.fail("Failed to parse test CamouflageSerDe json");
+        }
+        Dataset<Row> dataset = read(toJson(camouflageSerDe));
+        List<String> ssnRedacted = rowToString(dataset.select("SSN").filter(String.format(IS_NOT_NULL, "SSN")).collectAsList());
+        long nullRecords = partiallyNull.select("SSN").filter(String.format(IS_NULL, "SSN")).count();
+        long assertion = assertAndCount(ssnRedacted, "**********");
+        Assert.assertEquals(numRecords - nullRecords, assertion);
+    }
+
+    @Before
     @After
     public void clean() {
+        System.out.println("Cleaning resources");
         TestUtils.clean(testPath);
     }
 }
