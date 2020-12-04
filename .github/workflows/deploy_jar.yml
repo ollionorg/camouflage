@@ -2,16 +2,12 @@ name: Deploy version of jar
 
 on:
   push:
-    branches:
-      - [master, git_workflow]
-    paths:
-      - camouflage-beam/
-      - camouflage-core/
-      - camouflage-spark/
+    branches: [master, git_workflow]
+    paths: [camouflage-beam/, camouflage-core/, camouflage-spark/]
   workflow_dispatch:
     inputs:
       tags:
-        description: 'Test scenario tags'
+        description: 'run workflow'
 
 jobs:
   build:
@@ -24,15 +20,16 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+        path: current/camouflage
 
     - name: Checkout tools repo
       uses: actions/checkout@v2
       with:
         repository: cldcvr/datapipes-mvn-repo
-        path: datapipes-mvn-repo
+        path: current/datapipes-mvn-repo
     
     - name: Build snapshot with Maven
-      run: mvn clean install --file camouflage/pom.xml
+      run: mvn clean install
 
     - name: Find spark jar file
       id: spark_jar_file
