@@ -2,7 +2,7 @@ name: Deploy version of jar
 
 on:
   push:
-    branches: [master, git_workflow]
+    branches: [master, workflow]
     paths: [camouflage-beam/, camouflage-core/, camouflage-spark/]
   workflow_dispatch:
     inputs:
@@ -20,13 +20,12 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-        path: current/camouflage
 
     - name: Checkout tools repo
       uses: actions/checkout@v2
       with:
         repository: cldcvr/datapipes-mvn-repo
-        path: current/datapipes-mvn-repo
+        path: datapipes-mvn-repo
     
     - name: Build snapshot with Maven
       run: mvn clean install
@@ -53,14 +52,14 @@ jobs:
 
     - name: Build version with Maven
       run: |
-         mvn install:install-file -Dfile=${{ steps.jar_file.outputs.SPARK_JAR_LOCATION }}  -DgroupId=camouflage-spark -DartifactId=camouflage-spark -Dversion=${{ steps.jar_file.outputs.SPARK_JAR_VERSION }} -Dpackaging=jar -DgeneratePom=true -DlocalRepositoryPath=datapipes-mvn-repo/  -DcreateChecksum=true
-         mvn install:install-file -Dfile=${{ steps.jar_file.outputs.BEAM_JAR_LOCATION }}  -DgroupId=camouflage-beam -DartifactId=camouflage-beam -Dversion=${{ steps.jar_file.outputs.BEAM_JAR_VERSION }} -Dpackaging=jar -DgeneratePom=true -DlocalRepositoryPath=datapipes-mvn-repo/  -DcreateChecksum=true
+         mvn install:install-file -Dfile=${{ steps.spark_jar_file.outputs.SPARK_JAR_LOCATION }}  -DgroupId=camouflage-spark -DartifactId=camouflage-spark -Dversion=${{ steps.spark_jar_file.outputs.SPARK_JAR_VERSION }} -Dpackaging=jar -DgeneratePom=true -DlocalRepositoryPath=datapipes-mvn-repo/  -DcreateChecksum=true
+         mvn install:install-file -Dfile=${{ steps.beam_jar_file.outputs.BEAM_JAR_LOCATION }}  -DgroupId=camouflage-beam -DartifactId=camouflage-beam -Dversion=${{ steps.beam_jar_file.outputs.BEAM_JAR_VERSION }} -Dpackaging=jar -DgeneratePom=true -DlocalRepositoryPath=datapipes-mvn-repo/  -DcreateChecksum=true
 
     - name: deploy jar to repo
       run: |
-         git checkout -b release_${{ steps.jar_file.outputs.SPARK_JAR_VERSION }}
+         git checkout -b release_${{ steps.spark_jar_file.outputs.SPARK_JAR_VERSION }}
          git add .
-         git commit -m "release_version_${{ steps.jar_file.outputs.SPARK_JAR_VERSION }}"
-         git push --set-upstream origin release_${{ steps.jar_file.outputs.SPARK_JAR_VERSION }} 
+         git commit -m "release_version_${{ steps.spark_jar_file.outputs.SPARK_JAR_VERSION }}"
+         git push --set-upstream origin release_${{ steps.spark_jar_file.outputs.SPARK_JAR_VERSION }} 
 
        
