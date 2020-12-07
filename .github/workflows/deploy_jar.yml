@@ -25,11 +25,11 @@ jobs:
       with:
         java-version: 1.8
 
-    - name: Checkout tools repo
-      uses: actions/checkout@v2
-      with:
-        repository: cldcvr/datapipes-mvn-repo
-        path: datapipes-mvn-repo
+    # - name: Checkout tools repo
+    #   uses: actions/checkout@v2
+    #   with:
+    #     repository: cldcvr/datapipes-mvn-repo
+    #     path: datapipes-mvn-repo
     
     - name: Build snapshot with Maven
       run: mvn clean install --file camouflage/pom.xml
@@ -59,11 +59,14 @@ jobs:
          mvn install:install-file -Dfile=${{ steps.jar_file.outputs.SPARK_JAR_LOCATION }}  -DgroupId=camouflage-spark -DartifactId=camouflage-spark -Dversion=${{ steps.jar_file.outputs.SPARK_JAR_VERSION }} -Dpackaging=jar -DgeneratePom=true -DlocalRepositoryPath=datapipes-mvn-repo/  -DcreateChecksum=true
          mvn install:install-file -Dfile=${{ steps.jar_file.outputs.BEAM_JAR_LOCATION }}  -DgroupId=camouflage-beam -DartifactId=camouflage-beam -Dversion=${{ steps.jar_file.outputs.BEAM_JAR_VERSION }} -Dpackaging=jar -DgeneratePom=true -DlocalRepositoryPath=datapipes-mvn-repo/  -DcreateChecksum=true
 
-    - name: deploy jar to repo
+    - name: Commit jars to repo
       run: |
-         git checkout -b release_${{ steps.jar_file.outputs.SPARK_JAR_VERSION }}
-         git add .
-         git commit -m "release_version_${{ steps.jar_file.outputs.SPARK_JAR_VERSION }}"
-         git push --set-upstream origin release_${{ steps.jar_file.outputs.SPARK_JAR_VERSION }} 
-
-       
+         git config --local user.email "action@github.com"
+         git config --local user.name "GitHub Action"
+         git commit -m "Release version ${{ steps.jar_file.outputs.SPARK_JAR_LOCATION }}" -a
+    
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: repository
