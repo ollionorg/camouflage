@@ -59,6 +59,42 @@ public class RangeConfigTest {
     }
 
     @Test
+    public void testWithLongValue()
+    {
+        //Test with long value
+        RangeConfig config =null;
+        try{
+            config= new RangeConfig(Arrays.asList(new RangeToValue("9883487623", "9883487800", "HIGHEST"),
+                    new RangeToValue("9883487801", "9883488800", "EXCEEDS LIMITS")), "STANDARD");
+        }
+        catch (Exception e)
+        {
+            Assert.fail("Should not have failed");
+        }
+        test(config,"9883487723","HIGHEST");
+        test(config,"9883488710","EXCEEDS LIMITS");
+        test(config,"988348781000","STANDARD");
+    }
+
+    @Test
+    public void testWithDoubleValue()
+    {
+        //Test with long value
+        RangeConfig config =null;
+        try{
+            config= new RangeConfig(Arrays.asList(new RangeToValue("9883487623.83463", "9883487800.87343", "HIGHEST"),
+                    new RangeToValue("9883487801.824623", "9883488800.64532", "EXCEEDS LIMITS")), "STANDARD");
+        }
+        catch (Exception e)
+        {
+            Assert.fail("Should not have failed");
+        }
+        test(config,"9883487723.98828732","HIGHEST");
+        test(config,"9883488100.553","EXCEEDS LIMITS");
+        test(config,"9883488100.55383592742","EXCEEDS LIMITS");
+        test(config,"988348781000.89076544","STANDARD");
+    }
+    @Test
     public void testExceptionWhenCreatingObjectWithIncorrectParameters() throws Exception {
         String nullCheckMessage = "Either min or max or value is null or empty for";
         //Max is empty
@@ -123,6 +159,5 @@ public class RangeConfigTest {
     private void test(String input, String expected) {
         test(rangeConfig, input, expected);
     }
-
 
 }
