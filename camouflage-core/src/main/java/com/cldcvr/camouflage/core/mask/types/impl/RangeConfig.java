@@ -125,7 +125,7 @@ public class RangeConfig extends AbstractMaskType {
 
         public String apply(String input) {
             try {
-                double key = Double.parseDouble(input);
+                double key = Math.ceil(Double.parseDouble(input));
                 String output = null;
                 Map.Entry<Double, Range> entry = rangeTreeMap.floorEntry(key);
                 if (entry == null) {

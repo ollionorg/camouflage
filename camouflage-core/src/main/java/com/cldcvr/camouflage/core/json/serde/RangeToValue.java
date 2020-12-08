@@ -3,7 +3,6 @@ package com.cldcvr.camouflage.core.json.serde;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Comparator;
-import java.util.DuplicateFormatFlagsException;
 import java.util.Objects;
 
 public class RangeToValue {
