@@ -6,9 +6,10 @@ import com.cldcvr.camouflage.core.util.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class RangeConfig extends AbstractMaskType {
+public class RangeConfig extends AbstractMaskType implements Serializable{
 
     private final static Logger LOG = LoggerFactory.getLogger(RangeConfig.class);
 
@@ -41,8 +42,8 @@ public class RangeConfig extends AbstractMaskType {
         return new RangeBucket(buckets, defaultVal);
     }
 
-    private static class RangeBucket {
-        private static class Range {
+    private static class RangeBucket implements Serializable {
+        private static class Range implements Serializable{
             public final Double upper;
             public final String value;
 

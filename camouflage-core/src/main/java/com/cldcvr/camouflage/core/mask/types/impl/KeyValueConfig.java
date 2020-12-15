@@ -22,7 +22,7 @@ public class KeyValueConfig extends AbstractMaskType {
                 .filter(kv -> Utils.isNotNullOrEmpty(kv.getItem(),
                         () -> new IllegalArgumentException(String.format("Keys cannot be null or empty %s", kv))))
                 .collect(Collectors.toMap(k -> k.getItem().toUpperCase(), KeyToValue::getReplacement));
-        System.out.println("Key Value mapping constructed " + valueMap);
+        LOG.info("Key Value mapping constructed " + valueMap);
     }
 
     @Override
