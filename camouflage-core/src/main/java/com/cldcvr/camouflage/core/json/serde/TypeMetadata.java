@@ -3,6 +3,7 @@ package com.cldcvr.camouflage.core.json.serde;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Class is used for jackson parsing from JSON string to Object representation
@@ -13,6 +14,8 @@ public class TypeMetadata implements Serializable {
     private final String maskType;
     private final String replace;
     private final String salt;
+    private final List<RangeToValue> buckets;
+    private final List<KeyToValue> kvList;
 
     /**
      * Accepts params to express the required InfoType with MaskType to be used with replacement string if at all
@@ -26,11 +29,14 @@ public class TypeMetadata implements Serializable {
     public TypeMetadata(@JsonProperty("info_type") String infoType,
                         @JsonProperty("mask_type") String maskType,
                         @JsonProperty("replace") String replace,
-                        @JsonProperty("salt") String salt) {
+                        @JsonProperty("salt") String salt, @JsonProperty("rangeMap") List<RangeToValue> buckets,
+                        @JsonProperty("keyMap") List<KeyToValue> kvList) {
         this.infoType = infoType;
         this.maskType = maskType;
         this.replace = replace;
         this.salt = salt;
+        this.buckets = buckets;
+        this.kvList = kvList;
     }
 
     public String getSalt() {
@@ -49,6 +55,13 @@ public class TypeMetadata implements Serializable {
         return infoType;
     }
 
+    public List<KeyToValue> getKvList() {
+        return kvList;
+    }
+
+    public List<RangeToValue> getBuckets() {
+        return buckets;
+    }
 
     @Override
     public String toString() {
@@ -57,6 +70,8 @@ public class TypeMetadata implements Serializable {
                 ", maskType='" + maskType + '\'' +
                 ", replace='" + replace + '\'' +
                 ", salt='" + salt + '\'' +
+                ", rangeMap='" + buckets + '\'' +
+                ", keyMap='" + kvList + '\'' +
                 '}';
     }
 
