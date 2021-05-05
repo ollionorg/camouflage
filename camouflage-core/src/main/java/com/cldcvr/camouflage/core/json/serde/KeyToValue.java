@@ -2,9 +2,10 @@ package com.cldcvr.camouflage.core.json.serde;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class KeyToValue {
+public class KeyToValue implements Serializable {
 
     private final String item;
     private final String replacement;

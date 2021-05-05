@@ -46,7 +46,7 @@ public class RangeConfigTest {
         test(null, "STANDARD");
         test("30.0","LOW");
         test("29.9999999","LOW");
-        test("30.0001","MID");
+        test("30.0000001","MID");
     }
 
     private void testRanges(RangeConfig rangeConfigTest) {

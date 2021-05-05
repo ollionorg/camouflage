@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 
 public class TestUtils {
 
-    private static final List<String> cardTypes = Arrays.asList("VISA", "MASTER");
+    private static final List<String> cardTypes = Arrays.asList("VISA", "MASTER","AMERICAN EXPRESS","DISCOVER");
     private static final Random random = new Random();
     public static final ObjectMapper mapper = new ObjectMapper();
     public static final String testPath = "test";

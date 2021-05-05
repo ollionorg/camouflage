@@ -13,6 +13,4 @@
         <module>camouflage-spark</module>
         <module>camouflage-core</module>
     </modules>
-
-
 </project>

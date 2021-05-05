@@ -2,10 +2,11 @@ package com.cldcvr.camouflage.core.json.serde;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Objects;
 
-public class RangeToValue {
+public class RangeToValue implements Serializable {
     private final String min;
     private final String max;
     private final String value;
