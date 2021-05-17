@@ -1,6 +1,7 @@
 package com.cldcvr.camouflage.flink;
 
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.Serializable;
 import java.util.List;
@@ -9,10 +10,10 @@ import java.util.Objects;
 public class FlinkCamouflageSerDe implements Serializable {
     private final List<TopicAndColumns> topicAndColumns;
 
-    public FlinkCamouflageSerDe(@JsonProperty("DLPMetaData") List<TopicAndColumns> topicAndColumns) {
-        this.topicAndColumns = topicAndColumns;
+    public FlinkCamouflageSerDe(@JsonProperty("DLPMetaData") List<TopicAndColumns> topicAndColumns)
+    {
+        this.topicAndColumns=topicAndColumns;
     }
-
     public List<TopicAndColumns> getList() {
         return topicAndColumns;
     }

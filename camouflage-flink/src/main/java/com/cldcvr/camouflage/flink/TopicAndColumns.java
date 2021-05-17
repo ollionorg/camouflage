@@ -1,7 +1,7 @@
 package com.cldcvr.camouflage.flink;
 
 import com.cldcvr.camouflage.core.json.serde.ColumnMetadata;
-import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 import java.util.Objects;
