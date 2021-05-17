@@ -26,6 +26,13 @@ public class MaskFlinkRecord extends RichFlatMapFunction<JsonNode, JsonNode> {
     private FlinkCamouflageSerDe serDe;
     Map<String, Map<String, Set<AbstractInfoType>>> topicAndColumnInfoTypes;
 
+    /**
+     * Flat map open method constructs the FlinkCamouflageSerDe and also generates the map of
+     * Topic to map of Column to which infotypes will be applied.
+     *
+     * @param parameters
+     * @throws Exception
+     */
     @Override
     public void open(Configuration parameters) throws Exception {
         ParameterTool jobParameters = (ParameterTool) getRuntimeContext().getExecutionConfig().getGlobalJobParameters();
@@ -45,6 +52,19 @@ public class MaskFlinkRecord extends RichFlatMapFunction<JsonNode, JsonNode> {
                     return new TopicAndInfoType(topicAndColumns.getTopic(), columnAndAbstractType);
                 }).collect(Collectors.toMap(TopicAndInfoType::getTopic, TopicAndInfoType::getColumnTypes));
     }
+
+    /**
+     * Per record processor of DLP
+     * Takes a json node and then applies DLP
+     * Each json node has metadata field in which the topic fields tells us which topic the record belongs to.
+     * Based on the topic we look up in the map and apply the correct masking types.
+     * If record does not belong to a topic it is sent downstream as is.
+     * If record throws an exception during DLP or otherwise, the record is logged and discarded by flink
+     *
+     * @param value     input record to apply DLP to
+     * @param collector
+     * @throws Exception
+     */
 
     @Override
     public void flatMap(JsonNode value, Collector<JsonNode> collector) throws Exception {
@@ -76,12 +96,20 @@ public class MaskFlinkRecord extends RichFlatMapFunction<JsonNode, JsonNode> {
 
     }
 
+    /**
+     * Life cycle clears the serde to make it applicable for GC
+     *
+     * @throws Exception
+     */
     @Override
     public void close() throws Exception {
         serDe = null;
         //GC the serde
     }
 
+    /**
+     * Supporting POJO holds topic as key and Map of Column names to Abstract info types set
+     */
     final class TopicAndInfoType {
         private final String topic;
         private final Map<String, Set<AbstractInfoType>> columnTypes;

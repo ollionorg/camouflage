@@ -6,6 +6,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Holds Topics and columns for DLP serde
+ */
 public class TopicAndColumns {
     private final String topic;
     private final List<ColumnMetadata> columnMetadataList;
