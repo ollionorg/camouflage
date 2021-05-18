@@ -12,5 +12,6 @@
         <module>camouflage-beam</module>
         <module>camouflage-spark</module>
         <module>camouflage-core</module>
+        <module>camouflage-flink</module>
     </modules>
 </project>
