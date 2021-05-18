@@ -1,9 +1,8 @@
 package com.cldcvr.camouflage.flink;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
 import java.util.Arrays;
@@ -18,14 +17,14 @@ public class TestBase {
     private static final Random random = new Random();
     protected StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironment(1);
 
-    public List<JsonNode> generateTestRecords(String topic, int numRecords) {
+    public List<ObjectNode> generateTestRecords(String topic, int numRecords) {
 
         return IntStream.range(0, numRecords)
                 .mapToObj(i -> dummyRecord(topic, i))
                 .collect(Collectors.toList());
     }
 
-    public JsonNode dummyRecord(String topic, int id) {
+    public ObjectNode dummyRecord(String topic, int id) {
         ObjectNode node = mapper.createObjectNode();
         node.put("id", id);
         node.put("name", "Tom-" + id);

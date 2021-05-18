@@ -4,12 +4,12 @@ package com.cldcvr.camouflage.flink;
 import com.cldcvr.camouflage.core.exception.CamouflageApiException;
 import com.cldcvr.camouflage.core.info.types.AbstractInfoType;
 import com.cldcvr.camouflage.core.util.MapToInfoType;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.flink.api.common.functions.RichFlatMapFunction;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.JsonNode;
+import org.apache.flink.shaded.jackson2.com.fasterxml.jackson.databind.node.ObjectNode;
 import org.apache.flink.util.Collector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class MaskFlinkRecord extends RichFlatMapFunction<JsonNode, JsonNode> {
+public class MaskFlinkRecord extends RichFlatMapFunction<ObjectNode, ObjectNode> {
     private final Logger LOG = LoggerFactory.getLogger(MaskFlinkRecord.class);
     public static final String DLP_METADATA = "dlpMetadata";
     private FlinkCamouflageSerDe serDe;
@@ -67,10 +67,10 @@ public class MaskFlinkRecord extends RichFlatMapFunction<JsonNode, JsonNode> {
      */
 
     @Override
-    public void flatMap(JsonNode value, Collector<JsonNode> collector) throws Exception {
+    public void flatMap(ObjectNode value, Collector<ObjectNode> collector) throws Exception {
         try {
             String topic = value.get("metadata").get("topic").asText();
-            ObjectNode node = (ObjectNode) value;
+            ObjectNode node = value;
             Map<String, Set<AbstractInfoType>> colMap = topicAndColumnInfoTypes.get(topic);
             if (colMap != null) {
                 colMap.forEach((k, v) -> {
