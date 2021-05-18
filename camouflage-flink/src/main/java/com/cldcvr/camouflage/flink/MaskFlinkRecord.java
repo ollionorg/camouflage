@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class MaskFlinkRecord extends RichFlatMapFunction<JsonNode, JsonNode> {
+public class MaskFlinkRecord extends RichFlatMapFunction<ObjectNode, ObjectNode> {
     private final Logger LOG = LoggerFactory.getLogger(MaskFlinkRecord.class);
     public static final String DLP_METADATA = "dlpMetadata";
     private FlinkCamouflageSerDe serDe;
@@ -67,10 +67,10 @@ public class MaskFlinkRecord extends RichFlatMapFunction<JsonNode, JsonNode> {
      */
 
     @Override
-    public void flatMap(JsonNode value, Collector<JsonNode> collector) throws Exception {
+    public void flatMap(ObjectNode value, Collector<ObjectNode> collector) throws Exception {
         try {
             String topic = value.get("metadata").get("topic").asText();
-            ObjectNode node = (ObjectNode) value;
+            ObjectNode node = value;
             Map<String, Set<AbstractInfoType>> colMap = topicAndColumnInfoTypes.get(topic);
             if (colMap != null) {
                 colMap.forEach((k, v) -> {

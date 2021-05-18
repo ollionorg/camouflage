@@ -17,14 +17,14 @@ public class TestBase {
     private static final Random random = new Random();
     protected StreamExecutionEnvironment env = StreamExecutionEnvironment.createLocalEnvironment(1);
 
-    public List<JsonNode> generateTestRecords(String topic, int numRecords) {
+    public List<ObjectNode> generateTestRecords(String topic, int numRecords) {
 
         return IntStream.range(0, numRecords)
                 .mapToObj(i -> dummyRecord(topic, i))
                 .collect(Collectors.toList());
     }
 
-    public JsonNode dummyRecord(String topic, int id) {
+    public ObjectNode dummyRecord(String topic, int id) {
         ObjectNode node = mapper.createObjectNode();
         node.put("id", id);
         node.put("name", "Tom-" + id);
